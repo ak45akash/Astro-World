@@ -1,168 +1,141 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../shared/widgets/gradient_card.dart';
+import '../../../../core/theme/professional_theme.dart';
 
 class AdminDashboard extends ConsumerWidget {
   const AdminDashboard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.primaryGradient,
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    const Icon(Icons.admin_panel_settings_outlined, color: Colors.white, size: 32),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Admin Dashboard',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Content
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Stats
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildStatCard(
-                              context,
-                              'Pending Verifications',
-                              '12',
-                              Icons.verified_user,
-                              Colors.orange,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildStatCard(
-                              context,
-                              'Disputes',
-                              '5',
-                              Icons.gavel,
-                              Colors.red,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildStatCard(
-                              context,
-                              'Refunds',
-                              '8',
-                              Icons.money_off,
-                              Colors.blue,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildStatCard(
-                              context,
-                              'Support Tickets',
-                              '23',
-                              Icons.support_agent,
-                              Colors.green,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      // Pending Actions
-                      const Text(
-                        'Pending Actions',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildPendingItem(
-                        context,
-                        'Astrologer Verification',
-                        '5 astrologers waiting for approval',
-                        Icons.person_add,
-                      ),
-                      const SizedBox(height: 12),
-                      _buildPendingItem(
-                        context,
-                        'Refund Requests',
-                        '3 refund requests need review',
-                        Icons.money_off,
-                      ),
-                      const SizedBox(height: 12),
-                      _buildPendingItem(
-                        context,
-                        'Dispute Resolution',
-                        '2 disputes require attention',
-                        Icons.gavel,
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      // Quick Actions
-                      const Text(
-                        'Quick Actions',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildActionCard(
-                              context,
-                              'Verify Astrologers',
-                              Icons.verified,
-                              () {},
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildActionCard(
-                              context,
-                              'Handle Refunds',
-                              Icons.money_off,
-                              () {},
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+      backgroundColor: ProfessionalColors.background,
+      appBar: AppBar(
+        title: const Text('Admin Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Stats
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatCard(
+                    context,
+                    'Pending Verifications',
+                    '12',
+                    Icons.verified_user_outlined,
+                    ProfessionalColors.warning,
                   ),
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildStatCard(
+                    context,
+                    'Disputes',
+                    '5',
+                    Icons.gavel_outlined,
+                    ProfessionalColors.error,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatCard(
+                    context,
+                    'Refunds',
+                    '8',
+                    Icons.money_off_outlined,
+                    ProfessionalColors.info,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildStatCard(
+                    context,
+                    'Support Tickets',
+                    '23',
+                    Icons.support_agent_outlined,
+                    ProfessionalColors.success,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 32),
+
+            // Pending Actions
+            Text(
+              'Pending Actions',
+              style: theme.textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 16),
+            _buildPendingItem(
+              context,
+              'Astrologer Verification',
+              '5 astrologers waiting for approval',
+              Icons.person_add_outlined,
+              ProfessionalColors.warning,
+            ),
+            const SizedBox(height: 12),
+            _buildPendingItem(
+              context,
+              'Refund Requests',
+              '3 refund requests need review',
+              Icons.money_off_outlined,
+              ProfessionalColors.info,
+            ),
+            const SizedBox(height: 12),
+            _buildPendingItem(
+              context,
+              'Dispute Resolution',
+              '2 disputes require attention',
+              Icons.gavel_outlined,
+              ProfessionalColors.error,
+            ),
+
+            const SizedBox(height: 32),
+
+            // Quick Actions
+            Text(
+              'Quick Actions',
+              style: theme.textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    'Verify Astrologers',
+                    Icons.verified_outlined,
+                    () {},
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    'Handle Refunds',
+                    Icons.money_off_outlined,
+                    () {},
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -175,33 +148,34 @@ class AdminDashboard extends ConsumerWidget {
     IconData icon,
     Color color,
   ) {
-    return GradientCard(
-      gradient: LinearGradient(
-        colors: [color, color.withOpacity(0.7)],
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: Colors.white, size: 32),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
+    final theme = Theme.of(context);
+    
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: color, size: 24),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: theme.textTheme.bodyMedium,
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: theme.textTheme.headlineLarge,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -211,49 +185,22 @@ class AdminDashboard extends ConsumerWidget {
     String title,
     String subtitle,
     IconData icon,
+    Color color,
   ) {
-    return GradientCard(
-      gradient: LinearGradient(
-        colors: [Colors.white.withOpacity(0.2), Colors.white.withOpacity(0.1)],
-      ),
-      padding: const EdgeInsets.all(16),
-      onTap: () {},
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: Colors.white, size: 24),
+    return Card(
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.chevron_right, color: Colors.white),
-        ],
+          child: Icon(icon, color: color, size: 24),
+        ),
+        title: Text(title, style: Theme.of(context).textTheme.titleMedium),
+        subtitle: Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () {},
       ),
     );
   }
@@ -264,28 +211,25 @@ class AdminDashboard extends ConsumerWidget {
     IconData icon,
     VoidCallback onTap,
   ) {
-    return GradientCard(
-      gradient: LinearGradient(
-        colors: [Colors.white.withOpacity(0.2), Colors.white.withOpacity(0.1)],
-      ),
-      padding: const EdgeInsets.all(20),
-      onTap: onTap,
-      child: Column(
-        children: [
-          Icon(icon, color: Colors.white, size: 32),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Icon(icon, color: ProfessionalColors.primary, size: 32),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.labelLarge,
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
-
