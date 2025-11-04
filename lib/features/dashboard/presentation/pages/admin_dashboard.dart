@@ -74,7 +74,7 @@ class AdminDashboard extends ConsumerWidget {
                               context,
                               'Refunds',
                               '8',
-                              Icons.refund,
+                              Icons.money_off,
                               Colors.blue,
                             ),
                           ),
@@ -151,7 +151,7 @@ class AdminDashboard extends ConsumerWidget {
                             child: _buildActionCard(
                               context,
                               'Handle Refunds',
-                              Icons.refund,
+                              Icons.money_off,
                               () {},
                             ),
                           ),

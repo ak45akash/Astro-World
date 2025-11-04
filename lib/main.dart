@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -15,14 +16,24 @@ void main() async {
   // For production, set: AppConfig.setEnvironment(Environment.production);
   AppConfig.setEnvironment(Environment.development);
   
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Initialize Firebase with error handling
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    // If Firebase initialization fails, continue anyway for UI testing
+    debugPrint('Firebase initialization error: $e');
+    debugPrint('App will continue without Firebase (UI mode)');
+  }
   
   // Initialize notification service (skip in test mode)
   if (!AppConfig.isTesting) {
-    await NotificationService.initialize();
+    try {
+      await NotificationService.initialize();
+    } catch (e) {
+      debugPrint('Notification service initialization error: $e');
+    }
   }
   
   // Set preferred orientations

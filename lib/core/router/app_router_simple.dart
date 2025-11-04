@@ -10,43 +10,11 @@ import '../../features/astrologers/presentation/pages/astrologers_list_page.dart
 import '../../features/bookings/presentation/pages/bookings_page.dart';
 import '../../features/chat/presentation/pages/chat_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
-import '../../core/providers/auth_provider.dart';
 
-final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
-
+final routerProviderSimple = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/login',
     debugLogDiagnostics: true,
-    redirect: (context, state) {
-      // Handle auth state errors gracefully
-      if (authState.hasError) {
-        // If Firebase/auth fails, still allow navigation to login
-        if (state.matchedLocation != '/login' && 
-            state.matchedLocation != '/register' && 
-            state.matchedLocation != '/phone-auth') {
-          return '/login';
-        }
-        return null;
-      }
-      
-      if (authState.isLoading) {
-        return null; // Wait for auth state to load
-      }
-      
-      final isLoggedIn = authState.valueOrNull != null;
-      final isLoggingIn = state.matchedLocation == '/login' ||
-          state.matchedLocation == '/register' ||
-          state.matchedLocation == '/phone-auth';
-
-      if (!isLoggedIn && !isLoggingIn) {
-        return '/login';
-      }
-      if (isLoggedIn && isLoggingIn) {
-        return _getHomeRouteForRole(authState.value?.role ?? 'end_user');
-      }
-      return null;
-    },
     routes: [
       // Auth Routes
       GoRoute(
@@ -82,7 +50,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/chat/:bookingId',
         builder: (context, state) {
-          final bookingId = state.pathParameters['bookingId']!;
+          final bookingId = state.pathParameters['bookingId'] ?? 'test';
           return ChatPage(bookingId: bookingId);
         },
       ),
@@ -93,16 +61,4 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
-
-String _getHomeRouteForRole(String role) {
-  switch (role) {
-    case 'super_admin':
-    case 'admin':
-    case 'astrologer':
-    case 'content_creator':
-      return '/dashboard';
-    default:
-      return '/home';
-  }
-}
 

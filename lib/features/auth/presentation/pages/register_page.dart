@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/auth_container.dart';
 import '../widgets/gradient_button.dart';
-import '../providers/auth_providers.dart';
+// import '../providers/auth_providers.dart'; // Commented for simple version
 import '../../../../core/theme/app_theme.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
@@ -39,29 +39,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
     setState(() => _isLoading = true);
 
-    try {
-      await ref.read(authControllerProvider.notifier).signUpWithEmail(
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-            displayName: _nameController.text.trim(),
-            phoneNumber: _phoneController.text.trim().isNotEmpty
-                ? _phoneController.text.trim()
-                : null,
-          );
+    // Simulate registration for UI testing
+    await Future.delayed(const Duration(seconds: 1));
 
-      if (mounted) {
-        context.go('/home');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registration failed: ${e.toString()}')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    if (mounted) {
+      context.go('/home');
+      setState(() => _isLoading = false);
     }
   }
 

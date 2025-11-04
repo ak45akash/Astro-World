@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/auth_container.dart';
 import '../widgets/gradient_button.dart';
-import '../providers/auth_providers.dart';
+// import '../providers/auth_providers.dart'; // Commented for simple version
 import '../../../../core/theme/app_theme.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -32,47 +32,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     setState(() => _isLoading = true);
 
-    try {
-      await ref.read(authControllerProvider.notifier).signInWithEmail(
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-          );
+    // Simulate login for UI testing
+    await Future.delayed(const Duration(seconds: 1));
 
-      if (mounted) {
-        context.go('/home');
-      }
-    } catch (e) {
-      if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed: ${e.toString()}')),
-      );
-    }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    if (mounted) {
+      context.go('/home');
+      setState(() => _isLoading = false);
     }
   }
 
   Future<void> _handleGoogleLogin() async {
     setState(() => _isLoading = true);
 
-    try {
-      await ref.read(authControllerProvider.notifier).signInWithGoogle();
+    // Simulate Google login for UI testing
+    await Future.delayed(const Duration(seconds: 1));
 
-      if (mounted) {
-        context.go('/home');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Google login failed: ${e.toString()}')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    if (mounted) {
+      context.go('/home');
+      setState(() => _isLoading = false);
     }
   }
 

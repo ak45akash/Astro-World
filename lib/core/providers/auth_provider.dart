@@ -3,7 +3,12 @@ import '../../models/user_model.dart';
 import '../../features/auth/data/auth_repository.dart';
 
 final authStateProvider = StreamProvider<UserModel?>((ref) {
-  return ref.watch(authRepositoryProvider).authStateChanges();
+  try {
+    return ref.watch(authRepositoryProvider).authStateChanges();
+  } catch (e) {
+    // Return empty stream if Firebase/auth fails
+    return Stream.value(null);
+  }
 });
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {

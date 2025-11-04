@@ -12,10 +12,19 @@ class AuthRepository {
   final _uuid = const Uuid();
 
   Stream<UserModel?> authStateChanges() {
-    return _auth.authStateChanges().asyncMap((firebaseUser) async {
-      if (firebaseUser == null) return null;
-      return await getUserData(firebaseUser.uid);
-    });
+    try {
+      return _auth.authStateChanges().asyncMap((firebaseUser) async {
+        if (firebaseUser == null) return null;
+        try {
+          return await getUserData(firebaseUser.uid);
+        } catch (e) {
+          return null;
+        }
+      });
+    } catch (e) {
+      // Return empty stream if Firebase fails
+      return Stream.value(null);
+    }
   }
 
   Future<UserModel?> getUserData(String userId) async {
