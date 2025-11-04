@@ -267,44 +267,43 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
                     'Quick Actions',
                     style: theme.textTheme.headlineMedium,
                   ),
-                  const SizedBox(height: 16),
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 1.3,
-                    children: [
-                      _buildQuickActionCard(
-                        context,
-                        icon: Icons.person_search,
-                        title: 'Find Astrologer',
-                        subtitle: 'Browse experts',
-                        onTap: () => context.go('/astrologers'),
-                      ),
-                      _buildQuickActionCard(
-                        context,
-                        icon: Icons.calendar_today,
-                        title: 'My Bookings',
-                        subtitle: 'View appointments',
-                        onTap: () => context.go('/bookings'),
-                      ),
-                      _buildQuickActionCard(
-                        context,
-                        icon: Icons.phone,
-                        title: 'Call History',
-                        subtitle: 'Past consultations',
-                        onTap: () => context.go('/call-history'),
-                      ),
-                      _buildQuickActionCard(
-                        context,
-                        icon: Icons.wallet,
-                        title: 'My Wallet',
-                        subtitle: 'Balance & transactions',
-                        onTap: () => context.go('/wallet'),
-                      ),
-                    ],
+                  const SizedBox(height: 12),
+                  Card(
+                    child: Column(
+                      children: [
+                        _buildQuickActionListItem(
+                          context,
+                          icon: Icons.person_search,
+                          title: 'Find Astrologer',
+                          subtitle: 'Browse experts',
+                          onTap: () => context.go('/astrologers'),
+                        ),
+                        const Divider(height: 1),
+                        _buildQuickActionListItem(
+                          context,
+                          icon: Icons.calendar_today,
+                          title: 'My Bookings',
+                          subtitle: 'View appointments',
+                          onTap: () => context.go('/bookings'),
+                        ),
+                        const Divider(height: 1),
+                        _buildQuickActionListItem(
+                          context,
+                          icon: Icons.phone,
+                          title: 'Call History',
+                          subtitle: 'Past consultations',
+                          onTap: () => context.go('/call-history'),
+                        ),
+                        const Divider(height: 1),
+                        _buildQuickActionListItem(
+                          context,
+                          icon: Icons.wallet,
+                          title: 'My Wallet',
+                          subtitle: 'Balance & transactions',
+                          onTap: () => context.go('/wallet'),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -386,48 +385,31 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
     );
   }
 
-  Widget _buildQuickActionCard(
+  Widget _buildQuickActionListItem(
     BuildContext context, {
     required IconData icon,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: ProfessionalColors.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: ProfessionalColors.primary, size: 28),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: ProfessionalColors.primary.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: ProfessionalColors.primary, size: 20),
+      ),
+      title: Text(
+        title,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.w600,
         ),
       ),
+      subtitle: Text(subtitle),
+      trailing: const Icon(Icons.chevron_right, color: ProfessionalColors.textSecondary),
+      onTap: onTap,
     );
   }
 
