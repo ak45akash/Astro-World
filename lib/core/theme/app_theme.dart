@@ -115,7 +115,7 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
         backgroundColor: Colors.transparent,
         foregroundColor: AppColors.textPrimary,
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -186,7 +186,7 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
         backgroundColor: Colors.transparent,
         foregroundColor: AppColors.textLight,
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
