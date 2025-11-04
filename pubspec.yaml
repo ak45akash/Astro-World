@@ -54,7 +54,7 @@ dependencies:
   hive_flutter: ^1.1.0
 
   # Utils
-  intl: ^0.18.1
+  intl: ^0.19.0
   uuid: ^4.2.1
   image_picker: ^1.0.7
   file_picker: ^6.1.1
@@ -64,7 +64,7 @@ dependencies:
 
   # Charts & Analytics
   fl_chart: ^0.66.0
-  syncfusion_flutter_charts: ^24.1.41
+  # syncfusion_flutter_charts removed due to intl conflict - using fl_chart instead
 
   # Notifications
   flutter_local_notifications: ^16.3.0
@@ -74,9 +74,8 @@ dependencies:
   table_calendar: ^3.0.9
 
   # Forms & Validation
-  flutter_form_builder: ^9.1.1
-  form_builder_validators: ^9.1.0
-  # Note: Using intl ^0.18.1 for compatibility with form_builder_validators
+  # flutter_form_builder removed due to intl version conflict
+  # Using built-in Flutter form validation instead
 
 dev_dependencies:
   flutter_test:
