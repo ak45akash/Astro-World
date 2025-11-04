@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/config/firebase_config.dart';
+import 'core/config/app_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/router/app_router.dart';
 import 'core/services/notification_service.dart';
@@ -10,13 +11,19 @@ import 'core/services/notification_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Set environment (can be changed based on build flavor or environment variable)
+  // For production, set: AppConfig.setEnvironment(Environment.production);
+  AppConfig.setEnvironment(Environment.development);
+  
   // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  // Initialize notification service
-  await NotificationService.initialize();
+  // Initialize notification service (skip in test mode)
+  if (!AppConfig.isTesting) {
+    await NotificationService.initialize();
+  }
   
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
