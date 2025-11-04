@@ -24,7 +24,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: AppColors.primaryGradient,
+          color: ProfessionalColors.background,
         ),
         child: SafeArea(
           child: Column(

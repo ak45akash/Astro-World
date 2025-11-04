@@ -6,6 +6,15 @@ import 'features/dashboard/presentation/pages/super_admin_dashboard.dart';
 import 'features/dashboard/presentation/pages/admin_dashboard.dart';
 import 'features/dashboard/presentation/pages/astrologer_dashboard.dart';
 import 'features/dashboard/presentation/pages/content_creator_dashboard.dart';
+import 'features/home/presentation/pages/user_home_page.dart';
+import 'features/profile/presentation/pages/user_profile_page.dart';
+import 'features/chat/presentation/pages/chat_page.dart';
+import 'features/calls/presentation/pages/voice_call_page.dart';
+import 'features/calls/presentation/pages/video_call_page.dart';
+import 'features/calls/presentation/pages/call_history_page.dart';
+import 'features/wallet/presentation/pages/wallet_page.dart';
+import 'features/astrologers/presentation/pages/astrologers_list_page.dart';
+import 'features/bookings/presentation/pages/bookings_page.dart';
 
 void main() {
   runApp(
@@ -25,11 +34,60 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/home',
-        builder: (context, state) => const TestHomePage(),
+        builder: (context, state) => const UserHomePage(),
       ),
       GoRoute(
         path: '/dashboard',
         builder: (context, state) => const TestDashboardPage(),
+      ),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const UserProfilePage(),
+      ),
+      GoRoute(
+        path: '/chat/:bookingId',
+        builder: (context, state) {
+          final bookingId = state.pathParameters['bookingId']!;
+          return ChatPage(bookingId: bookingId);
+        },
+      ),
+      GoRoute(
+        path: '/voice-call',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return VoiceCallPage(
+            astrologerName: extra?['astrologerName'] ?? 'Astrologer',
+            astrologerImage: extra?['astrologerImage'],
+            astrologerId: extra?['astrologerId'],
+          );
+        },
+      ),
+      GoRoute(
+        path: '/video-call',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return VideoCallPage(
+            astrologerName: extra?['astrologerName'] ?? 'Astrologer',
+            astrologerImage: extra?['astrologerImage'],
+            astrologerId: extra?['astrologerId'],
+          );
+        },
+      ),
+      GoRoute(
+        path: '/call-history',
+        builder: (context, state) => const CallHistoryPage(),
+      ),
+      GoRoute(
+        path: '/wallet',
+        builder: (context, state) => const WalletPage(),
+      ),
+      GoRoute(
+        path: '/astrologers',
+        builder: (context, state) => const AstrologersListPage(),
+      ),
+      GoRoute(
+        path: '/bookings',
+        builder: (context, state) => const BookingsPage(),
       ),
     ],
   );
