@@ -1,9 +1,9 @@
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../features/auth/data/auth_repository.dart';
 import '../../models/user_model.dart';
 import '../config/test_constants.dart';
-import '../config/app_constants.dart' as constants;
-import 'dart:async';
+import '../constants/app_constants.dart' as constants;
 
 /// Mock implementation of AuthRepository for testing
 class MockAuthRepository extends AuthRepository {
