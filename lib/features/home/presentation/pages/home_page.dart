@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/gradient_card.dart';
 import '../../../../shared/widgets/animated_gradient.dart';
+import '../../../../core/widgets/role_switcher.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -284,6 +285,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                           },
                         ),
                       ),
+                      
+                      const SizedBox(height: 32),
+                      
+                      // Role Switcher (for testing)
+                      const RoleSwitcher(),
                     ],
                   ),
                 ),
