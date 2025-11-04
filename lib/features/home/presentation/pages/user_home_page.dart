@@ -11,47 +11,72 @@ class UserHomePage extends ConsumerStatefulWidget {
 }
 
 class _UserHomePageState extends ConsumerState<UserHomePage> {
-  int _currentHoroscopeIndex = 0;
-  final PageController _horoscopeController = PageController();
+  // Mock user data - in real app, this would come from user profile/state
+  final String? _userZodiacSign = 'Taurus'; // null if user hasn't added DOB
+  final bool _hasBirthDetails = true; // false if user hasn't added DOB
 
-  final List<Map<String, String>> horoscopes = [
-    {
-      'sign': 'Aries',
+  final Map<String, Map<String, String>> _horoscopes = {
+    'Aries': {
       'prediction': 'A day of new beginnings and opportunities. Your energy is high, making it perfect for starting new projects.',
       'luckyNumber': '7',
       'luckyColor': 'Red',
     },
-    {
-      'sign': 'Taurus',
-      'prediction': 'Focus on stability and comfort today. Financial matters look promising.',
+    'Taurus': {
+      'prediction': 'Focus on stability and comfort today. Financial matters look promising. Trust your instincts and stay grounded.',
       'luckyNumber': '4',
       'luckyColor': 'Green',
     },
-    {
-      'sign': 'Gemini',
-      'prediction': 'Communication is key today. Express your thoughts clearly and listen actively.',
+    'Gemini': {
+      'prediction': 'Communication is key today. Express your thoughts clearly and listen actively. Social connections bring positive energy.',
       'luckyNumber': '3',
       'luckyColor': 'Yellow',
     },
-    {
-      'sign': 'Cancer',
-      'prediction': 'Nurture your emotional well-being. Spend time with loved ones.',
+    'Cancer': {
+      'prediction': 'Nurture your emotional well-being. Spend time with loved ones. Your intuition is strong today.',
       'luckyNumber': '2',
       'luckyColor': 'Silver',
     },
-    {
-      'sign': 'Leo',
-      'prediction': 'Shine bright and lead with confidence. Your charisma is at its peak.',
+    'Leo': {
+      'prediction': 'Shine bright and lead with confidence. Your charisma is at its peak. Take center stage.',
       'luckyNumber': '5',
       'luckyColor': 'Gold',
     },
-    {
-      'sign': 'Virgo',
-      'prediction': 'Attention to detail brings rewards. Organize and plan your day.',
+    'Virgo': {
+      'prediction': 'Attention to detail brings rewards. Organize and plan your day. Practical approach leads to success.',
       'luckyNumber': '6',
       'luckyColor': 'Brown',
     },
-  ];
+    'Libra': {
+      'prediction': 'Seek balance and harmony in all areas of life. Relationships take center stage today.',
+      'luckyNumber': '9',
+      'luckyColor': 'Pink',
+    },
+    'Scorpio': {
+      'prediction': 'Embrace transformation and deep connections. Your intensity serves you well today.',
+      'luckyNumber': '8',
+      'luckyColor': 'Maroon',
+    },
+    'Sagittarius': {
+      'prediction': 'Adventure awaits. Explore new horizons and expand your knowledge. Optimism guides your path.',
+      'luckyNumber': '5',
+      'luckyColor': 'Purple',
+    },
+    'Capricorn': {
+      'prediction': 'Hard work pays off. Focus on your goals and maintain discipline. Success is within reach.',
+      'luckyNumber': '10',
+      'luckyColor': 'Black',
+    },
+    'Aquarius': {
+      'prediction': 'Innovate and connect with like-minded individuals. Your unique perspective is valued today.',
+      'luckyNumber': '11',
+      'luckyColor': 'Blue',
+    },
+    'Pisces': {
+      'prediction': 'Trust your intuition and creative instincts. Compassion and empathy guide your actions.',
+      'luckyNumber': '12',
+      'luckyColor': 'Sea Green',
+    },
+  };
 
   final List<Map<String, dynamic>> featuredAstrologers = [
     {
@@ -89,11 +114,6 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
     },
   ];
 
-  @override
-  void dispose() {
-    _horoscopeController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,102 +177,14 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Daily Horoscope',
-                        style: theme.textTheme.headlineMedium,
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // View all horoscopes
-                        },
-                        child: const Text('View All'),
-                      ),
-                    ],
+                  Text(
+                    'Your Daily Horoscope',
+                    style: theme.textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 16),
-                  SizedBox(
-                    height: 220,
-                    child: PageView.builder(
-                      controller: _horoscopeController,
-                      itemCount: horoscopes.length,
-                      onPageChanged: (index) {
-                        setState(() {
-                          _currentHoroscopeIndex = index;
-                        });
-                      },
-                      itemBuilder: (context, index) {
-                        final horoscope = horoscopes[index];
-                        return Card(
-                          elevation: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: ProfessionalColors.accent.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Icon(
-                                        Icons.star,
-                                        color: ProfessionalColors.accent,
-                                        size: 24,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      horoscope['sign']!,
-                                      style: theme.textTheme.headlineSmall,
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                Expanded(
-                                  child: Text(
-                                    horoscope['prediction']!,
-                                    style: theme.textTheme.bodyMedium,
-                                    maxLines: 4,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  children: [
-                                    _buildLuckyInfo(
-                                      context,
-                                      'Lucky Number',
-                                      horoscope['luckyNumber']!,
-                                    ),
-                                    const SizedBox(width: 16),
-                                    _buildLuckyInfo(
-                                      context,
-                                      'Lucky Color',
-                                      horoscope['luckyColor']!,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      horoscopes.length,
-                      (index) => _buildDot(index == _currentHoroscopeIndex),
-                    ),
-                  ),
+                  _hasBirthDetails && _userZodiacSign != null
+                      ? _buildUserHoroscopeCard(context, _userZodiacSign!)
+                      : _buildAddBirthDetailsPrompt(context),
                 ],
               ),
             ),
@@ -353,14 +285,133 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
     );
   }
 
-  Widget _buildDot(bool isActive) {
-    return Container(
-      width: isActive ? 12 : 8,
-      height: 8,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: BoxDecoration(
-        color: isActive ? ProfessionalColors.primary : ProfessionalColors.border,
-        borderRadius: BorderRadius.circular(4),
+  Widget _buildUserHoroscopeCard(BuildContext context, String zodiacSign) {
+    final theme = Theme.of(context);
+    final horoscope = _horoscopes[zodiacSign];
+
+    if (horoscope == null) {
+      return _buildAddBirthDetailsPrompt(context);
+    }
+
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: ProfessionalColors.accent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.auto_awesome,
+                    color: ProfessionalColors.accent,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        zodiacSign,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Today\'s Prediction',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: ProfessionalColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              horoscope['prediction']!,
+              style: theme.textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildLuckyInfo(
+                    context,
+                    'Lucky Number',
+                    horoscope['luckyNumber']!,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildLuckyInfo(
+                    context,
+                    'Lucky Color',
+                    horoscope['luckyColor']!,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddBirthDetailsPrompt(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            Icon(
+              Icons.calendar_today_outlined,
+              size: 48,
+              color: ProfessionalColors.textSecondary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Personalize Your Horoscope',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Add your date of birth in your profile settings to receive personalized daily horoscope predictions tailored to your zodiac sign.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: ProfessionalColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () {
+                context.go('/profile');
+              },
+              icon: const Icon(Icons.settings_outlined),
+              label: const Text('Update Profile Settings'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
