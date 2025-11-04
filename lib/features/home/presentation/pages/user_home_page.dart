@@ -333,7 +333,7 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
-                    height: 240,
+                    height: 250,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: featuredAstrologers.length,
