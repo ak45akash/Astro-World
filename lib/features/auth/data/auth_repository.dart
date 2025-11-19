@@ -97,7 +97,7 @@ class AuthRepository {
     );
 
     final userCredential = await _auth.signInWithCredential(credential);
-    
+
     // Check if user exists
     final userDoc = await _firestore
         .collection(AppConstants.collectionUsers)
@@ -164,7 +164,7 @@ class AuthRepository {
     );
 
     final userCredential = await _auth.signInWithCredential(credential);
-    
+
     // Check if user exists
     final userDoc = await _firestore
         .collection(AppConstants.collectionUsers)
@@ -202,7 +202,7 @@ class AuthRepository {
 
   Future<void> updateUserProfile({
     required String userId,
-    Map<String, dynamic> updates,
+    required Map<String, dynamic> updates,
   }) async {
     await _firestore
         .collection(AppConstants.collectionUsers)
@@ -214,4 +214,3 @@ class AuthRepository {
     return _uuid.v4().substring(0, 8).toUpperCase();
   }
 }
-

@@ -9,7 +9,7 @@ class SuperAdminDashboard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: ProfessionalColors.background,
       appBar: AppBar(
@@ -125,7 +125,14 @@ class SuperAdminDashboard extends ConsumerWidget {
                                 showTitles: true,
                                 getTitlesWidget: (value, meta) {
                                   return Text(
-                                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'][value.toInt()],
+                                    [
+                                      'Jan',
+                                      'Feb',
+                                      'Mar',
+                                      'Apr',
+                                      'May',
+                                      'Jun'
+                                    ][value.toInt()],
                                     style: TextStyle(
                                       color: ProfessionalColors.textSecondary,
                                       fontSize: 12,
@@ -166,7 +173,8 @@ class SuperAdminDashboard extends ConsumerWidget {
                               dotData: FlDotData(show: false),
                               belowBarData: BarAreaData(
                                 show: true,
-                                color: ProfessionalColors.accent.withOpacity(0.1),
+                                color:
+                                    ProfessionalColors.accent.withOpacity(0.1),
                               ),
                             ),
                           ],
@@ -244,7 +252,7 @@ class SuperAdminDashboard extends ConsumerWidget {
     Color color,
   ) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -263,7 +271,8 @@ class SuperAdminDashboard extends ConsumerWidget {
                   child: Icon(icon, color: color, size: 24),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: ProfessionalColors.success.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),

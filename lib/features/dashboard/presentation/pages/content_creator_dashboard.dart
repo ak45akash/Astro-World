@@ -8,7 +8,7 @@ class ContentCreatorDashboard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: ProfessionalColors.background,
       appBar: AppBar(
@@ -140,7 +140,7 @@ class ContentCreatorDashboard extends ConsumerWidget {
     Color color,
   ) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -204,7 +204,8 @@ class ContentCreatorDashboard extends ConsumerWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.visibility, size: 16, color: ProfessionalColors.textSecondary),
+                Icon(Icons.visibility,
+                    size: 16, color: ProfessionalColors.textSecondary),
                 const SizedBox(width: 4),
                 Text(views, style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(width: 16),

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 // import '../../../../core/providers/auth_provider.dart'; // Commented for simple version
 import 'super_admin_dashboard.dart';
 import 'admin_dashboard.dart';
 import 'astrologer_dashboard.dart';
 import 'content_creator_dashboard.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/theme/professional_theme.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -50,11 +50,15 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            _buildRoleChip('Super Admin', AppConstants.roleSuperAdmin),
+                            _buildRoleChip(
+                                'Super Admin', AppConstants.roleSuperAdmin),
                             _buildRoleChip('Admin', AppConstants.roleAdmin),
-                            _buildRoleChip('Astrologer', AppConstants.roleAstrologer),
-                            _buildRoleChip('Content Creator', AppConstants.roleContentCreator),
-                            _buildRoleChip('End User', AppConstants.roleEndUser),
+                            _buildRoleChip(
+                                'Astrologer', AppConstants.roleAstrologer),
+                            _buildRoleChip('Content Creator',
+                                AppConstants.roleContentCreator),
+                            _buildRoleChip(
+                                'End User', AppConstants.roleEndUser),
                           ],
                         ),
                       ],
@@ -62,7 +66,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   ),
                 ),
               ),
-              
+
               // Dashboard Content
               Expanded(
                 child: _buildDashboardForRole(_selectedRole),

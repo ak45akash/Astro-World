@@ -12,60 +12,52 @@ class AstrologersListPage extends ConsumerStatefulWidget {
 
 class _AstrologersListPageState extends ConsumerState<AstrologersListPage> {
   final TextEditingController _searchController = TextEditingController();
-  String _selectedFilter = 'All';
 
   final List<Map<String, dynamic>> _astrologers = [
     {
       'id': '1',
-      'name': 'Dr. Elena Petrova',
-      'specialty': 'Vedic Astrology',
-      'experience': '15+ Years',
-      'rating': 4.9,
-      'reviews': 1200,
-      'price': 500,
-      'imageUrl': 'https://randomuser.me/api/portraits/women/1.jpg',
-      'isVerified': true,
-      'languages': ['English', 'Hindi'],
-      'availability': 'Available Now',
+      'name': 'Vedarsh',
+      'specialty': 'Vedic',
+      'experience': '8 years',
+      'rate': 2,
+      'languages': ['Hindi', 'English'],
+      'imageUrl': null,
     },
     {
       'id': '2',
-      'name': 'Prof. Rahul Sharma',
-      'specialty': 'Tarot Reading',
-      'experience': '12+ Years',
-      'rating': 4.8,
-      'reviews': 950,
-      'price': 450,
-      'imageUrl': 'https://randomuser.me/api/portraits/men/2.jpg',
-      'isVerified': true,
+      'name': 'Vedarsh',
+      'specialty': 'Vedic',
+      'experience': '8 years',
+      'rate': 2,
       'languages': ['Hindi', 'English'],
-      'availability': 'Available Now',
+      'imageUrl': null,
     },
     {
       'id': '3',
-      'name': 'Ms. Anya Singh',
-      'specialty': 'Numerology',
-      'experience': '8+ Years',
-      'rating': 4.7,
-      'reviews': 800,
-      'price': 400,
-      'imageUrl': 'https://randomuser.me/api/portraits/women/3.jpg',
-      'isVerified': false,
-      'languages': ['English'],
-      'availability': 'Available in 2 hours',
+      'name': 'Vedarsh',
+      'specialty': 'Vedic',
+      'experience': '8 years',
+      'rate': 2,
+      'languages': ['Hindi', 'English'],
+      'imageUrl': null,
     },
     {
       'id': '4',
-      'name': 'Mr. David Lee',
-      'specialty': 'Palmistry',
-      'experience': '10+ Years',
-      'rating': 4.6,
-      'reviews': 700,
-      'price': 380,
-      'imageUrl': 'https://randomuser.me/api/portraits/men/4.jpg',
-      'isVerified': true,
-      'languages': ['English', 'Chinese'],
-      'availability': 'Available Now',
+      'name': 'Vedarsh',
+      'specialty': 'Vedic',
+      'experience': '8 years',
+      'rate': 2,
+      'languages': ['Hindi', 'English'],
+      'imageUrl': null,
+    },
+    {
+      'id': '5',
+      'name': 'Vedarsh',
+      'specialty': 'Vedic',
+      'experience': '8 years',
+      'rate': 2,
+      'languages': ['Hindi', 'English'],
+      'imageUrl': null,
     },
   ];
 
@@ -77,84 +69,103 @@ class _AstrologersListPageState extends ConsumerState<AstrologersListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final isTablet = screenWidth >= 600 && screenWidth < 1024;
 
     return Scaffold(
-      backgroundColor: ProfessionalColors.background,
-      appBar: AppBar(
-        title: const Text('Astrologers'),
+      backgroundColor: Colors.white,
+      drawer: _buildDrawer(context, isMobile, isTablet),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            _buildHeader(context, isMobile, isTablet),
+
+            // Search and Filter Bar
+            _buildSearchAndFilter(context, isMobile, isTablet),
+
+            const SizedBox(height: 8),
+
+            // Astrologers List
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 16 : isTablet ? 24 : 32,
+                  vertical: 8,
+                ),
+                itemCount: _astrologers.length,
+                itemBuilder: (context, index) {
+                  final astrologer = _astrologers[index];
+                  return _buildAstrologerCard(
+                    context,
+                    astrologer,
+                    isMobile,
+                    isTablet,
+                  );
+                },
+              ),
+            ),
+
+            // Footer
+            _buildFooter(context, isMobile, isTablet),
+          ],
+        ),
       ),
-      body: Column(
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, bool isMobile, bool isTablet) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 16 : isTablet ? 24 : 32,
+        vertical: 12,
+      ),
+      decoration: const BoxDecoration(
+        color: ProfessionalColors.primary,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search astrologers...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {});
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+          Row(
+            children: [
+              Container(
+                width: isMobile ? 40 : 48,
+                height: isMobile ? 40 : 48,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: Text(
+                    'A',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isMobile ? 20 : 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
-              onChanged: (value) => setState(() {}),
-            ),
+              const SizedBox(width: 12),
+              Text(
+                'Astrotalk',
+                style: TextStyle(
+                  fontSize: isMobile ? 20 : 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
-
-          // Filter Chips
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            height: 50,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: ['All', 'Vedic', 'Tarot', 'Numerology', 'Palmistry']
-                  .map((filter) => Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: Text(filter),
-                          selected: _selectedFilter == filter,
-                          onSelected: (selected) {
-                            setState(() {
-                              _selectedFilter = filter;
-                            });
-                          },
-                          selectedColor: ProfessionalColors.primary,
-                          checkmarkColor: ProfessionalColors.textLight,
-                          labelStyle: TextStyle(
-                            color: _selectedFilter == filter
-                                ? ProfessionalColors.textLight
-                                : ProfessionalColors.textPrimary,
-                            fontWeight: _selectedFilter == filter
-                                ? FontWeight.w600
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ))
-                  .toList(),
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          // Astrologers List
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _astrologers.length,
-              itemBuilder: (context, index) {
-                final astrologer = _astrologers[index];
-                return _buildAstrologerCard(context, astrologer);
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
               },
+              color: Colors.white,
             ),
           ),
         ],
@@ -162,52 +173,126 @@ class _AstrologersListPageState extends ConsumerState<AstrologersListPage> {
     );
   }
 
-  Widget _buildAstrologerCard(BuildContext context, Map<String, dynamic> astrologer) {
-    final theme = Theme.of(context);
+  Widget _buildSearchAndFilter(
+    BuildContext context,
+    bool isMobile,
+    bool isTablet,
+  ) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 16 : isTablet ? 24 : 32,
+        vertical: 12,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search Astrologers by name',
+                hintStyle: TextStyle(
+                  color: ProfessionalColors.textSecondary,
+                  fontSize: isMobile ? 14 : 15,
+                ),
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: ProfessionalColors.border,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: ProfessionalColors.border,
+                  ),
+                ),
+                filled: true,
+                fillColor: Colors.grey[50],
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 16 : 20,
+                  vertical: isMobile ? 12 : 14,
+                ),
+              ),
+              onChanged: (value) => setState(() {}),
+            ),
+          ),
+          const SizedBox(width: 12),
+          OutlinedButton(
+            onPressed: () {
+              // Show filter options
+            },
+            style: OutlinedButton.styleFrom(
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 16 : 20,
+                vertical: isMobile ? 12 : 14,
+              ),
+              side: BorderSide(color: ProfessionalColors.border),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('Filter'),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.star_border),
+            onPressed: () {
+              // Show favorites
+            },
+            color: ProfessionalColors.textPrimary,
+          ),
+        ],
+      ),
+    );
+  }
 
-    return Card(
+  Widget _buildAstrologerCard(
+    BuildContext context,
+    Map<String, dynamic> astrologer,
+    bool isMobile,
+    bool isTablet,
+  ) {
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: ProfessionalColors.border,
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: InkWell(
         onTap: () {
-          // Navigate to astrologer detail
           context.push('/astrologer/${astrologer['id']}');
         },
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Profile Image
-              Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundImage: astrologer['imageUrl'] != null
-                        ? NetworkImage(astrologer['imageUrl'])
-                        : null,
-                    child: astrologer['imageUrl'] == null
-                        ? const Icon(Icons.person, size: 40)
-                        : null,
-                  ),
-                  if (astrologer['isVerified'] == true)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: ProfessionalColors.success,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.verified,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ),
-                    ),
-                ],
+              // Profile Image Placeholder (Large gray square)
+              Container(
+                width: isMobile ? 80 : isTablet ? 100 : 120,
+                height: isMobile ? 80 : isTablet ? 100 : 120,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.person,
+                  size: isMobile ? 40 : isTablet ? 50 : 60,
+                  color: Colors.grey[600],
+                ),
               ),
               const SizedBox(width: 16),
 
@@ -217,75 +302,73 @@ class _AstrologersListPageState extends ConsumerState<AstrologersListPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Text(
                             astrologer['name'],
-                            style: theme.textTheme.titleMedium?.copyWith(
+                            style: TextStyle(
+                              fontSize: isMobile ? 16 : isTablet ? 18 : 20,
                               fontWeight: FontWeight.bold,
+                              color: ProfessionalColors.textPrimary,
                             ),
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: ProfessionalColors.success.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            astrologer['availability'],
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: ProfessionalColors.success,
-                              fontSize: 10,
-                            ),
+                        Text(
+                          '₹${astrologer['rate']}/min',
+                          style: TextStyle(
+                            fontSize: isMobile ? 14 : isTablet ? 16 : 18,
+                            fontWeight: FontWeight.bold,
+                            color: ProfessionalColors.textPrimary,
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      astrologer['specialty'],
+                      style: TextStyle(
+                        fontSize: isMobile ? 14 : 15,
+                        color: ProfessionalColors.textSecondary,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${astrologer['specialty']} • ${astrologer['experience']}',
-                      style: theme.textTheme.bodySmall,
+                      astrologer['languages'].join(', '),
+                      style: TextStyle(
+                        fontSize: isMobile ? 13 : 14,
+                        color: ProfessionalColors.textSecondary,
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(Icons.star, size: 16, color: Colors.amber),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${astrologer['rating']}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w600,
+                    const SizedBox(height: 4),
+                    Text(
+                      'Exp: ${astrologer['experience']}',
+                      style: TextStyle(
+                        fontSize: isMobile ? 13 : 14,
+                        color: ProfessionalColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Start chat
+                          context.push('/chat/new/${astrologer['id']}');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ProfessionalColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isMobile ? 24 : 28,
+                            vertical: isMobile ? 10 : 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '(${astrologer['reviews']} reviews)',
-                          style: theme.textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '₹${astrologer['price']}/30 min',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: ProfessionalColors.success,
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Book consultation
-                          },
-                          child: const Text('Book Now'),
-                        ),
-                      ],
+                        child: const Text('Chat'),
+                      ),
                     ),
                   ],
                 ),
@@ -296,4 +379,161 @@ class _AstrologersListPageState extends ConsumerState<AstrologersListPage> {
       ),
     );
   }
+
+  Widget _buildFooter(BuildContext context, bool isMobile, bool isTablet) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 16 : isTablet ? 24 : 32,
+        vertical: isMobile ? 20 : 24,
+      ),
+      decoration: const BoxDecoration(
+        color: ProfessionalColors.primary,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Register your account',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: isMobile ? 14 : 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Login your account to start free trial now!',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: isMobile ? 12 : 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          ElevatedButton(
+            onPressed: () => context.go('/login'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: ProfessionalColors.primary,
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 20 : 24,
+                vertical: isMobile ? 12 : 14,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(
+              'Login',
+              style: TextStyle(
+                fontSize: isMobile ? 14 : 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawer(BuildContext context, bool isMobile, bool isTablet) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              color: ProfessionalColors.primary,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'A',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Astrotalk',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home, color: ProfessionalColors.primary),
+            title: const Text('Home'),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/home');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.people, color: ProfessionalColors.primary),
+            title: const Text('Astrologers'),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/astrologers');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.calendar_today, color: ProfessionalColors.primary),
+            title: const Text('Bookings'),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/bookings');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person, color: ProfessionalColors.primary),
+            title: const Text('Profile'),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/profile');
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Logout', style: TextStyle(color: Colors.red)),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/login');
+            },
+          ),
+        ],
+      ),
+    );
+  }
 }
+

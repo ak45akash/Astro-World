@@ -11,11 +11,12 @@ import 'core/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Set environment (can be changed based on build flavor or environment variable)
   // For production, set: AppConfig.setEnvironment(Environment.production);
   AppConfig.setEnvironment(Environment.development);
-  
+  AppConfig.setTesting(true);
+
   // Initialize Firebase with error handling
   try {
     await Firebase.initializeApp(
@@ -26,7 +27,7 @@ void main() async {
     debugPrint('Firebase initialization error: $e');
     debugPrint('App will continue without Firebase (UI mode)');
   }
-  
+
   // Initialize notification service (skip in test mode)
   if (!AppConfig.isTesting) {
     try {
@@ -35,13 +36,13 @@ void main() async {
       debugPrint('Notification service initialization error: $e');
     }
   }
-  
+
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  
+
   runApp(
     const ProviderScope(
       child: AstrologyApp(),
@@ -67,4 +68,3 @@ class AstrologyApp extends ConsumerWidget {
     );
   }
 }
-

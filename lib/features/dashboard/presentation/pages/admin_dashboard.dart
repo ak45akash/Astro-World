@@ -8,7 +8,7 @@ class AdminDashboard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: ProfessionalColors.background,
       appBar: AppBar(
@@ -149,7 +149,7 @@ class AdminDashboard extends ConsumerWidget {
     Color color,
   ) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),

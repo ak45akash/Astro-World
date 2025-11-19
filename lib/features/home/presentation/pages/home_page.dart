@@ -1,10 +1,8 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../shared/widgets/gradient_card.dart';
-import '../../../../shared/widgets/animated_gradient.dart';
-// import '../../../../core/widgets/role_switcher.dart'; // Commented out for simple version
+import '../../../../core/theme/professional_theme.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -14,284 +12,531 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
+  final List<Map<String, dynamic>> featuredAstrologers = [
+    {
+      'id': '1',
+      'name': 'Sujata',
+      'specialty': 'Vedic Astrology',
+      'imageUrl': null,
+    },
+    {
+      'id': '2',
+      'name': 'Sujata',
+      'specialty': 'Vedic Astrology',
+      'imageUrl': null,
+    },
+    {
+      'id': '3',
+      'name': 'Sujata',
+      'specialty': 'Vedic Astrology',
+      'imageUrl': null,
+    },
+  ];
 
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
+  final List<Map<String, dynamic>> astrologyServices = [
+    {
+      'icon': Icons.wb_sunny,
+      'title': "Today's Horoscope",
+    },
+    {
+      'icon': Icons.grid_view,
+      'title': 'Free Kundli',
+    },
+    {
+      'icon': Icons.favorite,
+      'title': 'Compatibility',
+    },
+    {
+      'icon': Icons.chat_bubble_outline,
+      'title': 'Consultation',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final isTablet = screenWidth >= 600 && screenWidth < 1024;
+
     return Scaffold(
-      body: AnimatedGradient(
-        child: SafeArea(
+      backgroundColor: Colors.white,
+      drawer: _buildDrawer(context, isMobile, isTablet),
+      body: SafeArea(
+        child: SingleChildScrollView(
           child: Column(
             children: [
-              // App Bar
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Welcome Back',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Colors.white70,
-                              ),
-                        ),
-                        Text(
-                          'Astro World',
-                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ],
+              // Header
+              _buildHeader(context, isMobile, isTablet),
+
+              // Main Banner
+              _buildBanner(context, isMobile, isTablet),
+
+              const SizedBox(height: 24),
+
+              // Quick Action Icons
+              _buildQuickActions(context, isMobile, isTablet),
+
+              const SizedBox(height: 32),
+
+              // Astrology Services Section
+              _buildAstrologyServices(context, isMobile, isTablet),
+
+              const SizedBox(height: 32),
+
+              // Our Astrologers Section
+              _buildAstrologersSection(context, isMobile, isTablet),
+
+              const SizedBox(height: 24),
+
+              // Footer
+              _buildFooter(context, isMobile, isTablet),
+
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, bool isMobile, bool isTablet) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 16 : isTablet ? 24 : 32,
+        vertical: 12,
+      ),
+      decoration: const BoxDecoration(
+        color: ProfessionalColors.primary,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: isMobile ? 40 : 48,
+                height: isMobile ? 40 : 48,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: Text(
+                    'A',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isMobile ? 20 : 24,
+                      fontWeight: FontWeight.bold,
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-                      onPressed: () {},
-                    ),
-                  ],
+                  ),
                 ),
               ),
+              const SizedBox(width: 12),
+              Text(
+                'Astrotalk',
+                style: TextStyle(
+                  fontSize: isMobile ? 20 : 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-              // Daily Horoscope Section
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Zodiac Signs Carousel
-                      Text(
-                        'Your Daily Horoscope',
-                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        height: 200,
-                        child: PageView.builder(
-                          controller: _pageController,
-                          onPageChanged: (index) {
-                            setState(() {
-                              _currentPage = index;
-                            });
-                          },
-                          itemCount: 12,
-                          itemBuilder: (context, index) {
-                            final zodiacSigns = [
-                              'Aries', 'Taurus', 'Gemini', 'Cancer',
-                              'Leo', 'Virgo', 'Libra', 'Scorpio',
-                              'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
-                            ];
-                            return GradientCard(
-                              gradient: AppColors.primaryGradient,
-                              padding: const EdgeInsets.all(20),
+  Widget _buildBanner(BuildContext context, bool isMobile, bool isTablet) {
+    return Container(
+      height: isMobile ? 200 : isTablet ? 250 : 300,
+      margin: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            ProfessionalColors.primary,
+            ProfessionalColors.primaryDark,
+          ],
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Zodiac wheel background (simplified)
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.2,
+              child: CustomPaint(
+                painter: _ZodiacWheelPainter(),
+              ),
+            ),
+          ),
+          // Astrologer image placeholder (left side)
+          Positioned(
+            left: isMobile ? 16 : 24,
+            bottom: 0,
+            child: Container(
+              width: isMobile ? 120 : isTablet ? 150 : 180,
+              height: isMobile ? 150 : isTablet ? 180 : 220,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.person,
+                size: isMobile ? 80 : 100,
+                color: Colors.white.withOpacity(0.5),
+              ),
+            ),
+          ),
+          // Text overlay (right side)
+          Positioned(
+            right: isMobile ? 16 : 24,
+            top: isMobile ? 40 : 50,
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
-                                        zodiacSigns[index],
-                                        style: const TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
+                  'Chat with',
+                  style: TextStyle(
                                           color: Colors.white,
-                                        ),
-                                      ),
-                                      const Icon(
-                                        Icons.auto_awesome,
-                                        color: Colors.white,
-                                        size: 32,
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text(
-                                    'Today brings new opportunities for growth and understanding. Trust your intuition and embrace the cosmic energy.',
+                    fontSize: isMobile ? 24 : isTablet ? 28 : 32,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+                Text(
+                  'Astrologers',
                                     style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Row(
-                                    children: [
-                                      _buildLuckyItem('Lucky Number', '7'),
-                                      const SizedBox(width: 16),
-                                      _buildLuckyItem('Lucky Color', 'Blue'),
-                                    ],
+                    fontSize: isMobile ? 32 : isTablet ? 40 : 48,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
                                   ),
                                 ],
                               ),
                             );
-                          },
+  }
+
+  Widget _buildQuickActions(BuildContext context, bool isMobile, bool isTablet) {
+    final actions = [
+      {
+        'icon': Icons.chat_bubble_outline,
+        'label': 'Chat with\nAstrologer',
+      },
+      {
+        'icon': Icons.phone,
+        'label': 'Talk to\nAstrologer',
+      },
+      {
+        'icon': Icons.shopping_cart_outlined,
+        'label': 'Astromall\nShop',
+      },
+      {
+        'icon': Icons.menu_book,
+        'label': 'Book a\nPooja',
+      },
+    ];
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: actions.map((action) {
+          return _buildQuickActionIcon(
+            context,
+            icon: action['icon'] as IconData,
+            label: action['label'] as String,
+            isMobile: isMobile,
+            isTablet: isTablet,
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildQuickActionIcon(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required bool isMobile,
+    required bool isTablet,
+  }) {
+    return InkWell(
+      onTap: () {
+        // Handle action
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Column(
+        children: [
+          Container(
+            width: isMobile ? 60 : isTablet ? 70 : 80,
+            height: isMobile ? 60 : isTablet ? 70 : 80,
+            decoration: BoxDecoration(
+              color: ProfessionalColors.primary,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: isMobile ? 28 : isTablet ? 32 : 36,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          12,
-                          (index) => _buildDot(index == _currentPage),
-                        ),
-                      ),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: isMobile ? 11 : 12,
+              color: ProfessionalColors.textPrimary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-                      const SizedBox(height: 32),
-
-                      // Quick Actions
-                      Text(
-                        'Quick Actions',
-                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                              color: Colors.white,
+  Widget _buildAstrologyServices(
+    BuildContext context,
+    bool isMobile,
+    bool isTablet,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
+          child: Text(
+            'Astrology Services',
+            style: TextStyle(
+              fontSize: isMobile ? 18 : isTablet ? 20 : 22,
                               fontWeight: FontWeight.bold,
+              color: ProfessionalColors.textPrimary,
+            ),
                             ),
                       ),
                       const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildActionCard(
+        SizedBox(
+          height: isMobile ? 120 : isTablet ? 140 : 160,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
+            itemCount: astrologyServices.length,
+            itemBuilder: (context, index) {
+              final service = astrologyServices[index];
+              return _buildServiceCard(
                               context,
-                              icon: Icons.people_outline,
-                              title: 'Astrologers',
-                              color: AppColors.accentPurple,
-                              onTap: () => context.push('/astrologers'),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildActionCard(
-                              context,
-                              icon: Icons.calendar_today,
-                              title: 'Bookings',
-                              color: AppColors.accentPink,
-                              onTap: () => context.push('/bookings'),
-                            ),
+                icon: service['icon'] as IconData,
+                title: service['title'] as String,
+                isMobile: isMobile,
+                isTablet: isTablet,
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildServiceCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required bool isMobile,
+    required bool isTablet,
+  }) {
+    return Container(
+      width: isMobile ? 100 : isTablet ? 120 : 140,
+      margin: const EdgeInsets.only(right: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: ProfessionalColors.border,
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      Row(
+      child: InkWell(
+        onTap: () {
+          // Navigate to service
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Expanded(
-                            child: _buildActionCard(
-                              context,
-                              icon: Icons.account_circle,
-                              title: 'Profile',
-                              color: AppColors.accentGold,
-                              onTap: () => context.push('/profile'),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildActionCard(
-                              context,
-                              icon: Icons.auto_awesome,
-                              title: 'AI Chat',
-                              color: AppColors.primaryStart,
-                              onTap: () {},
-                            ),
+              Icon(
+                icon,
+                size: isMobile ? 32 : isTablet ? 36 : 40,
+                color: ProfessionalColors.primary,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isMobile ? 12 : 13,
+                  color: ProfessionalColors.textPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
+        ),
+      ),
+    );
+  }
 
-                      const SizedBox(height: 32),
-
-                      // Featured Astrologers
-                      Row(
+  Widget _buildAstrologersSection(
+    BuildContext context,
+    bool isMobile,
+    bool isTablet,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
+          child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Featured Astrologers',
-                            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                  color: Colors.white,
+                'Our Astrologers',
+                style: TextStyle(
+                  fontSize: isMobile ? 18 : isTablet ? 20 : 22,
                                   fontWeight: FontWeight.bold,
+                  color: ProfessionalColors.textPrimary,
                                 ),
                           ),
                           TextButton(
-                            onPressed: () => context.push('/astrologers'),
+                onPressed: () => context.go('/astrologers'),
                             child: const Text(
-                              'See All',
-                              style: TextStyle(color: Colors.white),
+                  'View all',
+                  style: TextStyle(
+                    color: ProfessionalColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
                             ),
                           ),
                         ],
+          ),
                       ),
                       const SizedBox(height: 16),
                       SizedBox(
-                        height: 180,
+          height: isMobile ? 140 : isTablet ? 160 : 180,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: 5,
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
+            itemCount: featuredAstrologers.length,
                           itemBuilder: (context, index) {
-                            return Container(
-                              width: 150,
-                              margin: const EdgeInsets.only(right: 16),
-                              child: GradientCard(
-                                gradient: AppColors.secondaryGradient,
-                                padding: const EdgeInsets.all(16),
-                                onTap: () => context.push('/astrologers'),
-                                child: Column(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 40,
-                                      backgroundColor: Colors.white.withOpacity(0.3),
-                                      child: const Icon(
-                                        Icons.person,
-                                        size: 40,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    const Text(
-                                      'Astrologer Name',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        ...List.generate(
-                                          5,
-                                          (i) => const Icon(
-                                            Icons.star,
-                                            color: Colors.white,
-                                            size: 12,
+              final astrologer = featuredAstrologers[index];
+              return _buildAstrologerCard(
+                context,
+                astrologer: astrologer,
+                isMobile: isMobile,
+                isTablet: isTablet,
+              );
+            },
                                           ),
                                         ),
                                       ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 32),
-                      
-                      // Role Switcher (for testing) - Temporarily disabled
-                      // const RoleSwitcher(),
-                    ],
+    );
+  }
+
+  Widget _buildAstrologerCard(
+    BuildContext context, {
+    required Map<String, dynamic> astrologer,
+    required bool isMobile,
+    required bool isTablet,
+  }) {
+    return Container(
+      width: isMobile ? 100 : isTablet ? 120 : 140,
+      margin: const EdgeInsets.only(right: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: ProfessionalColors.border,
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () {
+          context.push('/astrologer/${astrologer['id']}');
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: EdgeInsets.all(isMobile ? 8 : 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: isMobile ? 28 : isTablet ? 32 : 36,
+                backgroundColor: ProfessionalColors.primary.withOpacity(0.1),
+                child: Icon(
+                  Icons.person,
+                  size: isMobile ? 28 : isTablet ? 32 : 36,
+                  color: ProfessionalColors.primary,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Flexible(
+                child: Text(
+                  astrologer['name'],
+                  style: TextStyle(
+                    fontSize: isMobile ? 12 : 13,
+                    fontWeight: FontWeight.bold,
+                    color: ProfessionalColors.textPrimary,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Flexible(
+                child: Text(
+                  astrologer['specialty'],
+                  style: TextStyle(
+                    fontSize: isMobile ? 10 : 11,
+                    color: ProfessionalColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -301,41 +546,64 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _buildDot(bool isActive) {
+  Widget _buildFooter(BuildContext context, bool isMobile, bool isTablet) {
     return Container(
-      width: isActive ? 12 : 8,
-      height: 8,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: BoxDecoration(
-        color: isActive ? Colors.white : Colors.white.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(4),
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 16 : isTablet ? 24 : 32,
+        vertical: isMobile ? 20 : 24,
       ),
-    );
-  }
-
-  Widget _buildLuckyItem(String label, String value) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
+      decoration: const BoxDecoration(
+        color: ProfessionalColors.primary,
       ),
-      child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 10,
+                  'Register your account',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: isMobile ? 14 : 16,
+                    fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+                  'Login your account to start free trial now!',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: isMobile ? 12 : 13,
+            ),
+          ),
+        ],
+      ),
+          ),
+          const SizedBox(width: 16),
+          ElevatedButton(
+            onPressed: () {
+              context.go('/login');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: ProfessionalColors.primary,
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 20 : 24,
+                vertical: isMobile ? 12 : 14,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(
+              'Login',
+              style: TextStyle(
+                fontSize: isMobile ? 14 : 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -343,35 +611,129 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _buildActionCard(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GradientCard(
-      gradient: LinearGradient(
-        colors: [color, color.withOpacity(0.7)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      padding: const EdgeInsets.all(20),
-      onTap: onTap,
-      child: Column(
+  Widget _buildDrawer(BuildContext context, bool isMobile, bool isTablet) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
         children: [
-          Icon(icon, size: 40, color: Colors.white),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              color: ProfessionalColors.primary,
             ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'A',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Astrotalk',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home, color: ProfessionalColors.primary),
+            title: const Text('Home'),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/home');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.people, color: ProfessionalColors.primary),
+            title: const Text('Astrologers'),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/astrologers');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.calendar_today, color: ProfessionalColors.primary),
+            title: const Text('Bookings'),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/bookings');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person, color: ProfessionalColors.primary),
+            title: const Text('Profile'),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/profile');
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Logout', style: TextStyle(color: Colors.red)),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/login');
+            },
           ),
         ],
       ),
     );
   }
+}
+
+// Custom painter for zodiac wheel background
+class _ZodiacWheelPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width * 0.3;
+
+    final paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    // Draw outer circle
+    canvas.drawCircle(center, radius, paint);
+
+    // Draw inner circle
+    canvas.drawCircle(center, radius * 0.6, paint);
+
+    // Draw lines dividing the circle
+    for (int i = 0; i < 12; i++) {
+      final angle = (i * 30 - 90) * math.pi / 180;
+      final x1 = center.dx + radius * 0.6 * math.cos(angle);
+      final y1 = center.dy + radius * 0.6 * math.sin(angle);
+      final x2 = center.dx + radius * math.cos(angle);
+      final y2 = center.dy + radius * math.sin(angle);
+      canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

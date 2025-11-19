@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Professional Color Palette
+// Professional Color Palette - Astrotalk Inspired
 class ProfessionalColors {
-  // Primary - Deep Blue
-  static const Color primary = Color(0xFF1E3A5F);
-  static const Color primaryDark = Color(0xFF0F1F35);
-  static const Color primaryLight = Color(0xFF2E4A7F);
+  // Primary - Teal (Astrotalk style)
+  static const Color primary = Color(0xFF00A896); // Teal
+  static const Color primaryDark = Color(0xFF007A6B);
+  static const Color primaryLight = Color(0xFF00C9B1);
   
   // Secondary - Navy
   static const Color secondary = Color(0xFF2C3E50);
   static const Color secondaryLight = Color(0xFF34495E);
   
-  // Accent - Professional Blue
-  static const Color accent = Color(0xFF3498DB);
-  static const Color accentDark = Color(0xFF2980B9);
+  // Accent - Teal (matching primary)
+  static const Color accent = Color(0xFF00A896);
+  static const Color accentDark = Color(0xFF007A6B);
   
   // Background
-  static const Color background = Color(0xFFF5F7FA);
+  static const Color background = Color(0xFFFFFFFF); // White background like Astrotalk
   static const Color backgroundDark = Color(0xFF1A1D29);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceDark = Color(0xFF252836);
@@ -98,8 +98,8 @@ class ProfessionalThemeNotifier extends StateNotifier<ProfessionalThemeState> {
         elevation: 0,
         centerTitle: false,
         backgroundColor: ProfessionalColors.primary,
-        foregroundColor: ProfessionalColors.textLight,
-        iconTheme: IconThemeData(color: ProfessionalColors.textLight),
+        foregroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       cardTheme: CardThemeData(
         elevation: 1,
