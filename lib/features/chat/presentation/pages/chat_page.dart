@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/professional_theme.dart';
 
 class ChatPage extends ConsumerStatefulWidget {
@@ -88,40 +89,133 @@ class _ChatPageState extends ConsumerState<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final isTablet = screenWidth >= 600 && screenWidth < 1024;
     final astrologerName = widget.astrologerName ?? 'Astrologer';
     final astrologerImage = widget.astrologerImage;
 
     return Scaffold(
-      backgroundColor: ProfessionalColors.background,
-      appBar: AppBar(
-        title: Row(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
           children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundImage: astrologerImage != null
-                  ? NetworkImage(astrologerImage)
-                  : null,
-              child: astrologerImage == null
-                  ? const Icon(Icons.person, size: 20)
-                  : null,
-            ),
-            const SizedBox(width: 12),
+            // Teal Header with Back Button
+            _buildHeader(context, astrologerName, astrologerImage, isMobile, isTablet),
+
+            // Messages List
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+              child: _messages.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.chat_bubble_outline,
+                            size: 64,
+                            color: ProfessionalColors.textSecondary,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Start your conversation',
+                            style: TextStyle(
+                              fontSize: isMobile ? 16 : 18,
+                              color: ProfessionalColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        return _buildMessageBubble(_messages[index], isMobile);
+                      },
+                    ),
+            ),
+
+            // Attachment Options
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Row(
                 children: [
-                  Text(
-                    astrologerName,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: ProfessionalColors.textLight,
+                  IconButton(
+                    icon: const Icon(Icons.attach_file),
+                    onPressed: () {
+                      _showAttachmentOptions(context);
+                    },
+                    color: ProfessionalColors.textSecondary,
+                    tooltip: 'Attach',
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.image_outlined),
+                    onPressed: () {
+                      // Pick image
+                    },
+                    color: ProfessionalColors.textSecondary,
+                    tooltip: 'Image',
+                  ),
+                ],
+              ),
+            ),
+
+            // Message Input
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 16 : 20,
+                vertical: 12,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  top: BorderSide(color: ProfessionalColors.border, width: 1),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _messageController,
+                      decoration: InputDecoration(
+                        hintText: 'Type a message...',
+                        hintStyle: TextStyle(
+                          color: ProfessionalColors.textSecondary,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide(color: ProfessionalColors.border),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide(color: ProfessionalColors.border),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: const BorderSide(
+                            color: ProfessionalColors.primary,
+                            width: 2,
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[50],
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
+                      ),
+                      maxLines: null,
+                      textCapitalization: TextCapitalization.sentences,
+                      onSubmitted: (_) => _sendMessage(),
                     ),
                   ),
-                  Text(
-                    'Online',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: ProfessionalColors.textLight.withOpacity(0.7),
+                  const SizedBox(width: 8),
+                  CircleAvatar(
+                    backgroundColor: ProfessionalColors.primary,
+                    child: IconButton(
+                      icon: const Icon(Icons.send, color: Colors.white),
+                      onPressed: _sendMessage,
                     ),
                   ),
                 ],
@@ -129,22 +223,96 @@ class _ChatPageState extends ConsumerState<ChatPage> {
             ),
           ],
         ),
-        actions: [
+      ),
+    );
+  }
+
+  Widget _buildHeader(
+    BuildContext context,
+    String astrologerName,
+    String? astrologerImage,
+    bool isMobile,
+    bool isTablet,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 16 : isTablet ? 24 : 32,
+        vertical: 12,
+      ),
+      decoration: const BoxDecoration(
+        color: ProfessionalColors.primary,
+      ),
+      child: Row(
+        children: [
           IconButton(
-            icon: const Icon(Icons.phone),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => context.pop(),
+          ),
+          const SizedBox(width: 8),
+          CircleAvatar(
+            radius: isMobile ? 18 : 20,
+            backgroundColor: Colors.white.withOpacity(0.2),
+            backgroundImage: astrologerImage != null
+                ? NetworkImage(astrologerImage)
+                : null,
+            child: astrologerImage == null
+                ? const Icon(Icons.person, size: 18, color: Colors.white)
+                : null,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  astrologerName,
+                  style: TextStyle(
+                    fontSize: isMobile ? 16 : 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Online',
+                      style: TextStyle(
+                        fontSize: isMobile ? 12 : 13,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.phone, color: Colors.white),
             onPressed: () {
               // Navigate to voice call
             },
             tooltip: 'Voice Call',
           ),
           IconButton(
-            icon: const Icon(Icons.videocam),
+            icon: const Icon(Icons.videocam, color: Colors.white),
             onPressed: () {
               // Navigate to video call
             },
             tooltip: 'Video Call',
           ),
           PopupMenuButton(
+            icon: const Icon(Icons.more_vert, color: Colors.white),
             itemBuilder: (context) => [
               const PopupMenuItem(
                 value: 'view_profile',
@@ -170,123 +338,10 @@ class _ChatPageState extends ConsumerState<ChatPage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Messages List
-          Expanded(
-            child: _messages.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.chat_bubble_outline,
-                          size: 64,
-                          color: ProfessionalColors.textSecondary,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Start your conversation',
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: ProfessionalColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) {
-                      return _buildMessageBubble(_messages[index]);
-                    },
-                  ),
-          ),
-
-          // Attachment Options
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.attach_file),
-                  onPressed: () {
-                    // Show attachment options
-                    _showAttachmentOptions(context);
-                  },
-                  tooltip: 'Attach',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.image_outlined),
-                  onPressed: () {
-                    // Pick image
-                  },
-                  tooltip: 'Image',
-                ),
-              ],
-            ),
-          ),
-
-          // Message Input
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: ProfessionalColors.surface,
-              border: Border(
-                top: BorderSide(color: ProfessionalColors.border),
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Type a message...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: ProfessionalColors.border),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: ProfessionalColors.border),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: const BorderSide(
-                          color: ProfessionalColors.accent,
-                          width: 2,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                    ),
-                    maxLines: null,
-                    textCapitalization: TextCapitalization.sentences,
-                    onSubmitted: (_) => _sendMessage(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundColor: ProfessionalColors.primary,
-                  child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white),
-                    onPressed: _sendMessage,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 
-  Widget _buildMessageBubble(ChatMessage message) {
-    final theme = Theme.of(context);
+  Widget _buildMessageBubble(ChatMessage message, bool isMobile) {
     final isSent = message.isSent;
 
     return Padding(
@@ -299,8 +354,12 @@ class _ChatPageState extends ConsumerState<ChatPage> {
           if (!isSent) ...[
             CircleAvatar(
               radius: 16,
-              backgroundColor: ProfessionalColors.accent.withOpacity(0.2),
-              child: const Icon(Icons.person, size: 18),
+              backgroundColor: ProfessionalColors.primary.withOpacity(0.1),
+              child: Icon(
+                Icons.person,
+                size: 16,
+                color: ProfessionalColors.primary,
+              ),
             ),
             const SizedBox(width: 8),
           ],
@@ -310,10 +369,10 @@ class _ChatPageState extends ConsumerState<ChatPage> {
               decoration: BoxDecoration(
                 color: isSent
                     ? ProfessionalColors.primary
-                    : ProfessionalColors.surface,
+                    : Colors.grey[100],
                 borderRadius: BorderRadius.circular(16),
                 border: !isSent
-                    ? Border.all(color: ProfessionalColors.border)
+                    ? Border.all(color: ProfessionalColors.border, width: 1)
                     : null,
               ),
               child: Column(
@@ -321,9 +380,10 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                 children: [
                   Text(
                     message.text,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: TextStyle(
+                      fontSize: isMobile ? 14 : 15,
                       color: isSent
-                          ? ProfessionalColors.textLight
+                          ? Colors.white
                           : ProfessionalColors.textPrimary,
                     ),
                   ),
@@ -333,9 +393,9 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                     children: [
                       Text(
                         _formatTime(message.timestamp),
-                        style: theme.textTheme.bodySmall?.copyWith(
+                        style: TextStyle(
                           color: isSent
-                              ? ProfessionalColors.textLight.withOpacity(0.7)
+                              ? Colors.white.withOpacity(0.8)
                               : ProfessionalColors.textSecondary,
                           fontSize: 11,
                         ),
@@ -345,7 +405,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                         Icon(
                           Icons.done_all,
                           size: 14,
-                          color: ProfessionalColors.textLight.withOpacity(0.7),
+                          color: Colors.white.withOpacity(0.8),
                         ),
                       ],
                     ],

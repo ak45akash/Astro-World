@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/professional_theme.dart';
 
 class WalletPage extends ConsumerStatefulWidget {
@@ -48,14 +49,21 @@ class _WalletPageState extends ConsumerState<WalletPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final isTablet = screenWidth >= 600 && screenWidth < 1024;
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: ProfessionalColors.background,
-      appBar: AppBar(
-        title: const Text('My Wallet'),
-      ),
-      body: Column(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Teal Header with Back Button
+            _buildHeader(context, isMobile, isTablet),
+            // Wallet Content
+            Expanded(
+              child: Column(
         children: [
           // Wallet Balance Card
           Container(
@@ -186,6 +194,63 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                       return _buildTransactionItem(context, transaction);
                     },
                   ),
+          ),
+        ],
+      ),
+    ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, bool isMobile, bool isTablet) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 16 : isTablet ? 24 : 32,
+        vertical: 12,
+      ),
+      decoration: const BoxDecoration(
+        color: ProfessionalColors.primary,
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => context.pop(),
+          ),
+          const SizedBox(width: 8),
+          Row(
+            children: [
+              Container(
+                width: isMobile ? 40 : 48,
+                height: isMobile ? 40 : 48,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: Text(
+                    'A',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isMobile ? 20 : 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'My Wallet',
+                style: TextStyle(
+                  fontSize: isMobile ? 20 : 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
         ],
       ),

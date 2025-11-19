@@ -80,32 +80,45 @@ class _CallHistoryPageState extends ConsumerState<CallHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final isTablet = screenWidth >= 600 && screenWidth < 1024;
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: ProfessionalColors.background,
-      appBar: AppBar(
-        title: const Text('Call History'),
-      ),
-      body: Column(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Teal Header with Back Button
+            _buildHeader(context, isMobile, isTablet),
+            // Call History Content
+            Expanded(
+              child: Column(
         children: [
           // Filter Tabs
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: ProfessionalColors.surface,
+            padding: EdgeInsets.symmetric(
+              horizontal: isMobile ? 16 : isTablet ? 24 : 32,
+              vertical: 12,
+            ),
+            decoration: const BoxDecoration(
+              color: Colors.white,
               border: Border(
-                bottom: BorderSide(color: ProfessionalColors.border),
+                bottom: BorderSide(color: ProfessionalColors.border, width: 1),
               ),
             ),
-            child: Row(
-              children: [
-                _buildFilterChip('All', _selectedFilter == 'All'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Voice', _selectedFilter == 'Voice'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Video', _selectedFilter == 'Video'),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildFilterChip('All', _selectedFilter == 'All'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip('Voice', _selectedFilter == 'Voice'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip('Video', _selectedFilter == 'Video'),
+                ],
+              ),
             ),
           ),
 
@@ -153,12 +166,78 @@ class _CallHistoryPageState extends ConsumerState<CallHistoryPage> {
           ),
         ],
       ),
+    ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, bool isMobile, bool isTablet) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 16 : isTablet ? 24 : 32,
+        vertical: 12,
+      ),
+      decoration: const BoxDecoration(
+        color: ProfessionalColors.primary,
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => context.pop(),
+          ),
+          const SizedBox(width: 8),
+          Row(
+            children: [
+              Container(
+                width: isMobile ? 40 : 48,
+                height: isMobile ? 40 : 48,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: Text(
+                    'A',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isMobile ? 20 : 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Call History',
+                style: TextStyle(
+                  fontSize: isMobile ? 20 : 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildFilterChip(String label, bool isSelected) {
     return FilterChip(
-      label: Text(label),
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isSelected) ...[
+            const Icon(Icons.check, size: 16, color: Colors.white),
+            const SizedBox(width: 4),
+          ],
+          Text(label),
+        ],
+      ),
       selected: isSelected,
       onSelected: (selected) {
         if (selected) {
@@ -168,11 +247,12 @@ class _CallHistoryPageState extends ConsumerState<CallHistoryPage> {
         }
       },
       selectedColor: ProfessionalColors.primary,
-      checkmarkColor: ProfessionalColors.textLight,
+      checkmarkColor: Colors.white,
       labelStyle: TextStyle(
-        color: isSelected ? ProfessionalColors.textLight : ProfessionalColors.textPrimary,
+        color: isSelected ? Colors.white : ProfessionalColors.textPrimary,
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );
   }
 
