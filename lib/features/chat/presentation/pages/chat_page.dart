@@ -247,7 +247,13 @@ class _ChatPageState extends ConsumerState<ChatPage> {
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => context.pop(),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/bookings');
+              }
+            },
           ),
           const SizedBox(width: 8),
           CircleAvatar(

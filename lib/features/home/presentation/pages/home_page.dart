@@ -16,6 +16,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   late PageController _carouselController;
   int _currentCarouselIndex = 0;
   Timer? _carouselTimer;
+  bool _isUserInteracting = false;
 
   final List<Map<String, dynamic>> featuredAstrologers = [
     {
@@ -78,7 +79,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   void _startCarouselTimer() {
     _carouselTimer?.cancel();
     _carouselTimer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
-      if (_carouselController.hasClients && !_carouselController.position.isScrollingNotifier.value) {
+      if (_carouselController.hasClients && !_isUserInteracting) {
         final nextIndex = (_currentCarouselIndex + 1) % 3;
         _carouselController.animateToPage(
           nextIndex,
@@ -87,6 +88,16 @@ class _HomePageState extends ConsumerState<HomePage> {
         );
       }
     });
+  }
+
+  void _pauseCarouselTimer() {
+    _isUserInteracting = true;
+    _carouselTimer?.cancel();
+  }
+
+  void _resumeCarouselTimer() {
+    _isUserInteracting = false;
+    _startCarouselTimer();
   }
 
   @override
@@ -227,9 +238,18 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     return Column(
       children: [
-        SizedBox(
-          height: isMobile ? 200 : isTablet ? 250 : 300,
-          child: PageView.builder(
+        GestureDetector(
+          onPanStart: (_) => _pauseCarouselTimer(),
+          onPanEnd: (_) {
+            Future.delayed(const Duration(seconds: 2), () {
+              if (mounted) {
+                _resumeCarouselTimer();
+              }
+            });
+          },
+          child: SizedBox(
+            height: isMobile ? 200 : isTablet ? 250 : 300,
+            child: PageView.builder(
             controller: _carouselController,
             allowImplicitScrolling: false,
             physics: const BouncingScrollPhysics(),
@@ -237,8 +257,12 @@ class _HomePageState extends ConsumerState<HomePage> {
               setState(() {
                 _currentCarouselIndex = index;
               });
-              // Restart timer when page changes manually
-              _startCarouselTimer();
+              // Resume timer after user interaction with delay
+              Future.delayed(const Duration(seconds: 2), () {
+                if (mounted) {
+                  _resumeCarouselTimer();
+                }
+              });
             },
             itemCount: carouselItems.length,
             itemBuilder: (context, index) {
@@ -313,7 +337,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               );
             },
           ),
-        ),
+            ),
+          ),
         const SizedBox(height: 12),
         // Carousel indicators
         Row(

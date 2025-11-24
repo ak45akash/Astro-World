@@ -132,7 +132,13 @@ class _AstrologersListPageState extends ConsumerState<AstrologersListPage> {
             children: [
               IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => context.pop(),
+                onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go('/home');
+                  }
+                },
               ),
               Container(
                 width: isMobile ? 40 : 48,

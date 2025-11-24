@@ -145,7 +145,13 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => context.pop(),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/home');
+              }
+            },
           ),
           const SizedBox(width: 8),
           Row(
@@ -488,7 +494,7 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
   Color _getStatusColor(BookingStatus status) {
     switch (status) {
       case BookingStatus.upcoming:
-        return ProfessionalColors.info;
+        return ProfessionalColors.primary;
       case BookingStatus.completed:
         return ProfessionalColors.success;
       case BookingStatus.cancelled:
