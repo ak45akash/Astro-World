@@ -256,7 +256,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               _currentCarouselIndex = index;
             });
             // Resume timer after user interaction with delay
-            Future.delayed(const Duration(seconds: 2), () {
+            Future.delayed(const Duration(microseconds: 500), () {
               if (mounted) {
                 _resumeCarouselTimer();
               }
@@ -566,7 +566,11 @@ class _HomePageState extends ConsumerState<HomePage> {
           // Content - Centered
           InkWell(
             onTap: () {
-              // Navigate to service
+              if (title == "Today's Horoscope") {
+                context.go('/horoscope');
+              } else {
+                // Navigate to other services
+              }
             },
             borderRadius: BorderRadius.circular(12),
             child: Container(

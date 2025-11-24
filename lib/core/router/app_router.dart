@@ -19,6 +19,7 @@ import '../../features/dashboard/presentation/pages/charts/moon_chart_page.dart'
 import '../../features/dashboard/presentation/pages/charts/chalit_chart_page.dart';
 import '../../features/dashboard/presentation/pages/charts/planetary_positions_page.dart';
 import '../../features/dashboard/presentation/pages/charts/dasha_chart_page.dart';
+import '../../features/horoscope/presentation/pages/todays_horoscope_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -99,6 +100,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/bookings',
         builder: (context, state) => const BookingsPage(),
+      ),
+      GoRoute(
+        path: '/horoscope',
+        builder: (context, state) {
+          final zodiacSign = state.uri.queryParameters['sign'];
+          return TodaysHoroscopePage(initialZodiacSign: zodiacSign);
+        },
       ),
       GoRoute(
         path: '/chat/:bookingId',

@@ -1,11 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/horoscope_model.dart';
 import '../constants/app_constants.dart';
-import 'astrology_service.dart';
 
 class HoroscopeService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final AstrologyService _astrologyService = AstrologyService();
 
   Future<HoroscopeModel?> getDailyHoroscope({
     required String zodiacSign,
@@ -27,36 +25,9 @@ class HoroscopeService {
       return HoroscopeModel.fromMap(doc.docs.first.data(), doc.docs.first.id);
     }
 
-    // Fetch from API if not cached
-    try {
-      final data = await _astrologyService.getDailyHoroscope(
-        zodiacSign: zodiacSign,
-        date: date,
-      );
-
-      final horoscope = HoroscopeModel(
-        id: '',
-        zodiacSign: zodiacSign,
-        date: date,
-        prediction: data['prediction'] ?? '',
-        love: data['love'],
-        career: data['career'],
-        health: data['health'],
-        finance: data['finance'],
-        luckyNumber: data['luckyNumber'] ?? 0,
-        luckyColor: data['luckyColor'] ?? '',
-        createdAt: DateTime.now(),
-      );
-
-      final docRef = await _firestore
-          .collection(AppConstants.collectionHoroscopes)
-          .add(horoscope.toMap());
-
-      final savedDoc = await docRef.get();
-      return HoroscopeModel.fromMap(savedDoc.data()!, savedDoc.id);
-    } catch (e) {
-      return null;
-    }
+    // Don't fetch from API - only read from Firestore
+    // Cloud Function will populate Firestore daily
+    return null;
   }
 
   Future<List<HoroscopeModel>> getAllDailyHoroscopes(DateTime date) async {
