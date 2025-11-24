@@ -221,16 +221,7 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
 
   Widget _buildFilterChip(String label, bool isSelected, bool isMobile) {
     return FilterChip(
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isSelected) ...[
-            const Icon(Icons.check, size: 16, color: Colors.white),
-            const SizedBox(width: 4),
-          ],
-          Text(label),
-        ],
-      ),
+      label: Text(label),
       selected: isSelected,
       onSelected: (selected) {
         if (selected) {
@@ -241,7 +232,7 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
       },
       selectedColor: ProfessionalColors.primary,
       backgroundColor: Colors.white,
-      checkmarkColor: Colors.white,
+      showCheckmark: false,
       side: BorderSide(
         color: isSelected ? ProfessionalColors.primary : ProfessionalColors.border,
         width: 1,
