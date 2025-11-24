@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/professional_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../constants/app_constants.dart';
@@ -130,7 +131,7 @@ class RoleSwitcher extends ConsumerWidget {
               }
             },
       style: ElevatedButton.styleFrom(
-        backgroundColor: isActive ? Colors.green : Colors.blue,
+        backgroundColor: isActive ? ProfessionalColors.success : ProfessionalColors.primary,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),

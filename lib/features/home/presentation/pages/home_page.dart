@@ -78,7 +78,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   void _startCarouselTimer() {
     _carouselTimer?.cancel();
     _carouselTimer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
-      if (_carouselController.hasClients) {
+      if (_carouselController.hasClients && !_carouselController.position.isScrollingNotifier.value) {
         final nextIndex = (_currentCarouselIndex + 1) % 3;
         _carouselController.animateToPage(
           nextIndex,
@@ -231,6 +231,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           height: isMobile ? 200 : isTablet ? 250 : 300,
           child: PageView.builder(
             controller: _carouselController,
+            allowImplicitScrolling: false,
+            physics: const BouncingScrollPhysics(),
             onPageChanged: (index) {
               setState(() {
                 _currentCarouselIndex = index;
@@ -812,12 +814,21 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Widget _buildDrawer(BuildContext context, bool isMobile, bool isTablet) {
     return Drawer(
+      backgroundColor: Colors.white,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
             decoration: const BoxDecoration(
               color: ProfessionalColors.primary,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  ProfessionalColors.primary,
+                  ProfessionalColors.primaryDark,
+                ],
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -859,7 +870,10 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           ListTile(
             leading: const Icon(Icons.home, color: ProfessionalColors.primary),
-            title: const Text('Home'),
+            title: const Text(
+              'Home',
+              style: TextStyle(color: ProfessionalColors.textPrimary),
+            ),
             onTap: () {
               Navigator.pop(context);
               context.go('/home');
@@ -867,7 +881,10 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           ListTile(
             leading: const Icon(Icons.people, color: ProfessionalColors.primary),
-            title: const Text('Astrologers'),
+            title: const Text(
+              'Astrologers',
+              style: TextStyle(color: ProfessionalColors.textPrimary),
+            ),
             onTap: () {
               Navigator.pop(context);
               context.go('/astrologers');
@@ -875,7 +892,10 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           ListTile(
             leading: const Icon(Icons.calendar_today, color: ProfessionalColors.primary),
-            title: const Text('Bookings'),
+            title: const Text(
+              'Bookings',
+              style: TextStyle(color: ProfessionalColors.textPrimary),
+            ),
             onTap: () {
               Navigator.pop(context);
               context.go('/bookings');
@@ -883,16 +903,22 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           ListTile(
             leading: const Icon(Icons.person, color: ProfessionalColors.primary),
-            title: const Text('Profile'),
+            title: const Text(
+              'Profile',
+              style: TextStyle(color: ProfessionalColors.textPrimary),
+            ),
             onTap: () {
               Navigator.pop(context);
               context.go('/profile');
             },
           ),
-          const Divider(),
+          const Divider(color: ProfessionalColors.divider),
           ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text('Logout', style: TextStyle(color: Colors.red)),
+            leading: const Icon(Icons.logout, color: ProfessionalColors.error),
+            title: const Text(
+              'Logout',
+              style: TextStyle(color: ProfessionalColors.error),
+            ),
             onTap: () {
               Navigator.pop(context);
               context.go('/login');

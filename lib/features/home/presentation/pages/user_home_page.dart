@@ -78,7 +78,7 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
   void _startCarouselTimer() {
     _carouselTimer?.cancel();
     _carouselTimer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
-      if (_carouselController.hasClients) {
+      if (_carouselController.hasClients && !_carouselController.position.isScrollingNotifier.value) {
         final nextIndex = (_currentCarouselIndex + 1) % 3;
         _carouselController.animateToPage(
           nextIndex,
@@ -224,6 +224,8 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
           height: isMobile ? 200 : isTablet ? 250 : 300,
           child: PageView.builder(
             controller: _carouselController,
+            allowImplicitScrolling: false,
+            physics: const BouncingScrollPhysics(),
             onPageChanged: (index) {
               setState(() {
                 _currentCarouselIndex = index;
