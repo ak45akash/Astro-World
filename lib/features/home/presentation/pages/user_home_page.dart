@@ -229,20 +229,20 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
       },
     ];
 
-    return Column(
-      children: [
-        GestureDetector(
-          onPanStart: (_) => _pauseCarouselTimer(),
-          onPanEnd: (_) {
-            Future.delayed(const Duration(seconds: 2), () {
-              if (mounted) {
-                _resumeCarouselTimer();
-              }
-            });
-          },
-          child: SizedBox(
-            height: isMobile ? 200 : isTablet ? 250 : 300,
-            child: PageView.builder(
+    return GestureDetector(
+      onPanStart: (_) => _pauseCarouselTimer(),
+      onPanEnd: (_) {
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            _resumeCarouselTimer();
+          }
+        });
+      },
+      child: SizedBox(
+        height: isMobile ? 200 : isTablet ? 250 : 300,
+        child: Stack(
+          children: [
+            PageView.builder(
               controller: _carouselController,
               allowImplicitScrolling: false,
               physics: const BouncingScrollPhysics(),
@@ -258,100 +258,186 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
                 });
               },
               itemCount: carouselItems.length,
-            itemBuilder: (context, index) {
-              final item = carouselItems[index];
-              return Container(
-                margin: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: item['gradient'] as List<Color>,
+              itemBuilder: (context, index) {
+                final item = carouselItems[index];
+                return Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: item['gradient'] as List<Color>,
+                    ),
                   ),
-                ),
-                child: Stack(
-                  children: [
-                    // Zodiac wheel background (simplified)
-                    Positioned.fill(
-                      child: Opacity(
-                        opacity: 0.2,
-                        child: CustomPaint(
-                          painter: _ZodiacWheelPainter(),
-                        ),
-                      ),
-                    ),
-                    // Icon placeholder (left side)
-                    Positioned(
-                      left: isMobile ? 16 : 24,
-                      bottom: 0,
-                      child: Container(
-                        width: isMobile ? 120 : isTablet ? 150 : 180,
-                        height: isMobile ? 150 : isTablet ? 180 : 220,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          item['icon'] as IconData,
-                          size: isMobile ? 80 : 100,
-                          color: Colors.white.withOpacity(0.5),
-                        ),
-                      ),
-                    ),
-                    // Text overlay (right side)
-                    Positioned(
-                      right: isMobile ? 16 : 24,
-                      top: isMobile ? 40 : 50,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            item['title'] as String,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: isMobile ? 24 : isTablet ? 28 : 32,
-                              fontWeight: FontWeight.w300,
-                            ),
+                  child: Stack(
+                    children: [
+                      // Zodiac wheel background (simplified)
+                      Positioned.fill(
+                        child: Opacity(
+                          opacity: 0.2,
+                          child: CustomPaint(
+                            painter: _ZodiacWheelPainter(),
                           ),
-                          Text(
-                            item['subtitle'] as String,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: isMobile ? 32 : isTablet ? 40 : 48,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+                      // Icon placeholder (left side)
+                      Positioned(
+                        left: isMobile ? 16 : 24,
+                        bottom: 0,
+                        child: Container(
+                          width: isMobile ? 120 : isTablet ? 150 : 180,
+                          height: isMobile ? 150 : isTablet ? 180 : 220,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            item['icon'] as IconData,
+                            size: isMobile ? 80 : 100,
+                            color: Colors.white.withOpacity(0.5),
+                          ),
+                        ),
+                      ),
+                      // Text overlay (right side)
+                      Positioned(
+                        right: isMobile ? 16 : 24,
+                        top: isMobile ? 40 : 50,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              item['title'] as String,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: isMobile ? 24 : isTablet ? 28 : 32,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                            Text(
+                              item['subtitle'] as String,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: isMobile ? 32 : isTablet ? 40 : 48,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
-          ),
-        const SizedBox(height: 12),
-        // Carousel indicators
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            carouselItems.length,
-            (index) => Container(
-              width: _currentCarouselIndex == index ? 24 : 8,
-              height: 8,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                color: _currentCarouselIndex == index
-                    ? ProfessionalColors.primary
-                    : ProfessionalColors.primary.withOpacity(0.3),
+            // Navigation Arrows
+            Positioned(
+              left: 16,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.3),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.chevron_left,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  onPressed: () {
+                    _pauseCarouselTimer();
+                    if (_currentCarouselIndex > 0) {
+                      _carouselController.previousPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    } else {
+                      _carouselController.animateToPage(
+                        carouselItems.length - 1,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    }
+                    Future.delayed(const Duration(seconds: 2), () {
+                      if (mounted) {
+                        _resumeCarouselTimer();
+                      }
+                    });
+                  },
+                ),
               ),
             ),
-          ),
+            Positioned(
+              right: 16,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.3),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.chevron_right,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  onPressed: () {
+                    _pauseCarouselTimer();
+                    if (_currentCarouselIndex < carouselItems.length - 1) {
+                      _carouselController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    } else {
+                      _carouselController.animateToPage(
+                        0,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    }
+                    Future.delayed(const Duration(seconds: 2), () {
+                      if (mounted) {
+                        _resumeCarouselTimer();
+                      }
+                    });
+                  },
+                ),
+              ),
+            ),
+            // Carousel indicators at bottom
+            Positioned(
+              bottom: 16,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  carouselItems.length,
+                  (index) => Container(
+                    width: _currentCarouselIndex == index ? 24 : 8,
+                    height: 8,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      color: _currentCarouselIndex == index
+                          ? Colors.white
+                          : Colors.white.withOpacity(0.5),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
