@@ -240,7 +240,12 @@ class _BookingsPageState extends ConsumerState<BookingsPage> {
         }
       },
       selectedColor: ProfessionalColors.primary,
+      backgroundColor: Colors.white,
       checkmarkColor: Colors.white,
+      side: BorderSide(
+        color: isSelected ? ProfessionalColors.primary : ProfessionalColors.border,
+        width: 1,
+      ),
       labelStyle: TextStyle(
         color: isSelected ? Colors.white : ProfessionalColors.textPrimary,
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
