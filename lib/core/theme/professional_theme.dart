@@ -141,6 +141,11 @@ class ProfessionalThemeNotifier extends StateNotifier<ProfessionalThemeState> {
         thickness: 1,
         space: 1,
       ),
+      dropdownMenuTheme: DropdownMenuThemeData(
+        menuStyle: MenuStyle(
+          backgroundColor: WidgetStateProperty.all(Colors.white),
+        ),
+      ),
       fontFamily: 'Poppins',
       textTheme: const TextTheme(
         displayLarge: TextStyle(
@@ -244,6 +249,11 @@ class ProfessionalThemeNotifier extends StateNotifier<ProfessionalThemeState> {
         color: Colors.white.withOpacity(0.1),
         thickness: 1,
         space: 1,
+      ),
+      dropdownMenuTheme: DropdownMenuThemeData(
+        menuStyle: MenuStyle(
+          backgroundColor: WidgetStateProperty.all(ProfessionalColors.surfaceDark),
+        ),
       ),
       fontFamily: 'Poppins',
       textTheme: TextTheme(

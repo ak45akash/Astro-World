@@ -17,6 +17,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   int _currentCarouselIndex = 0;
   Timer? _carouselTimer;
   bool _isUserInteracting = false;
+  bool _hinduCalendarExpanded = false; // Accordion state for Hindu Calendar
 
   final List<Map<String, dynamic>> featuredAstrologers = [
     {
@@ -65,17 +66,21 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
+    // Initialize carousel controller and start auto-slide timer
     _carouselController = PageController();
     _startCarouselTimer();
   }
 
   @override
   void dispose() {
+    // Clean up timers and controllers
     _carouselTimer?.cancel();
     _carouselController.dispose();
     super.dispose();
   }
 
+  /// Starts the carousel auto-slide timer
+  /// Slides to next page every 5 seconds when user is not interacting
   void _startCarouselTimer() {
     _carouselTimer?.cancel();
     _carouselTimer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
@@ -90,11 +95,13 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
   }
 
+  /// Pauses the carousel timer when user interacts with it
   void _pauseCarouselTimer() {
     _isUserInteracting = true;
     _carouselTimer?.cancel();
   }
 
+  /// Resumes the carousel timer after user interaction
   void _resumeCarouselTimer() {
     _isUserInteracting = false;
     _startCarouselTimer();
@@ -123,6 +130,11 @@ class _HomePageState extends ConsumerState<HomePage> {
 
               // Quick Action Icons
               _buildQuickActions(context, isMobile, isTablet),
+
+              const SizedBox(height: 32),
+
+              // Hindu Calendar Accordion
+              _buildHinduCalendar(context, isMobile, isTablet),
 
               const SizedBox(height: 32),
 
@@ -384,7 +396,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   }) {
     return InkWell(
       onTap: () {
-        // Handle action
+        // Handle action - Navigate to respective pages
+        // TODO: Implement navigation logic for each quick action
       },
       borderRadius: BorderRadius.circular(12),
       child: Column(
@@ -400,9 +413,9 @@ class _HomePageState extends ConsumerState<HomePage> {
               icon,
               color: Colors.white,
               size: isMobile ? 28 : isTablet ? 32 : 36,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
+            ),
+          ),
+          const SizedBox(height: 8),
           Text(
             label,
             textAlign: TextAlign.center,
@@ -415,6 +428,174 @@ class _HomePageState extends ConsumerState<HomePage> {
         ],
       ),
     );
+  }
+
+  /// Builds the Hindu Calendar accordion section
+  /// Displays today's Hindu calendar date and Panchang information
+  Widget _buildHinduCalendar(
+    BuildContext context,
+    bool isMobile,
+    bool isTablet,
+  ) {
+    // Get today's date
+    final today = DateTime.now();
+    
+    // Mock Hindu calendar data - In production, this would come from an API
+    // Format: Shukla/Krishna Paksha, Tithi, Month, Year
+    final hinduDate = _getHinduDate(today);
+    
+    // Panchang data for today
+    final panchangItems = [
+      {'label': 'Tithi', 'value': hinduDate['tithi'] ?? 'Dwitiya'},
+      {'label': 'Paksha', 'value': hinduDate['paksha'] ?? 'Shukla'},
+      {'label': 'Nakshatra', 'value': hinduDate['nakshatra'] ?? 'Rohini'},
+      {'label': 'Yoga', 'value': hinduDate['yoga'] ?? 'Vajra'},
+      {'label': 'Karana', 'value': hinduDate['karana'] ?? 'Bava'},
+      {'label': 'Rahu Kalam', 'value': '07:30 - 09:00'},
+      {'label': 'Gulika Kalam', 'value': '10:30 - 12:00'},
+      {'label': 'Yamaganda Kalam', 'value': '13:30 - 15:00'},
+    ];
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
+          iconTheme: const IconThemeData(color: ProfessionalColors.textSecondary),
+        ),
+        child: ExpansionTile(
+          initiallyExpanded: _hinduCalendarExpanded,
+          onExpansionChanged: (expanded) {
+            setState(() {
+              _hinduCalendarExpanded = expanded;
+            });
+          },
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ProfessionalColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.calendar_month,
+              color: ProfessionalColors.primary,
+              size: 24,
+            ),
+          ),
+          title: Text(
+            'Hindu Calendar',
+            style: TextStyle(
+              fontSize: isMobile ? 18 : 20,
+              fontWeight: FontWeight.bold,
+              color: ProfessionalColors.textPrimary,
+            ),
+          ),
+          subtitle: Text(
+            hinduDate['fullDate'] ?? '${today.day}/${today.month}/${today.year}',
+            style: TextStyle(
+              fontSize: isMobile ? 12 : 14,
+              color: ProfessionalColors.textSecondary,
+            ),
+          ),
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 20, vertical: 8),
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: panchangItems.map((item) => Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: ProfessionalColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item['label'] as String,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: ProfessionalColors.textSecondary,
+                        ),
+                      ),
+                      Text(
+                        item['value'] as String,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: ProfessionalColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                )).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Converts Gregorian date to approximate Hindu calendar date
+  /// Note: This is a simplified conversion. For accurate dates, use a proper Hindu calendar API
+  Map<String, String> _getHinduDate(DateTime date) {
+    // Simplified Hindu calendar conversion
+    // In production, this should use a proper Hindu calendar library or API
+    final months = [
+      'Chaitra', 'Vaisakha', 'Jyeshtha', 'Ashadha',
+      'Shravana', 'Bhadrapada', 'Ashvina', 'Kartika',
+      'Margashirsha', 'Pausha', 'Magha', 'Phalguna'
+    ];
+    
+    final tithis = [
+      'Pratipada', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
+      'Shashthi', 'Saptami', 'Ashtami', 'Navami', 'Dashami',
+      'Ekadashi', 'Dwadashi', 'Trayodashi', 'Chaturdashi', 'Purnima/Amavasya'
+    ];
+    
+    final nakshatras = [
+      'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira',
+      'Ardra', 'Punarvasu', 'Pushya', 'Ashlesha', 'Magha',
+      'Purva Phalguni', 'Uttara Phalguni', 'Hasta', 'Chitra', 'Swati',
+      'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha',
+      'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada',
+      'Uttara Bhadrapada', 'Revati'
+    ];
+    
+    // Simplified calculation - in production, use proper Hindu calendar calculations
+    final monthIndex = (date.month - 1) % 12;
+    final tithiIndex = (date.day - 1) % 15;
+    final nakshatraIndex = (date.day - 1) % 27;
+    
+    // Determine Paksha (Shukla = bright half, Krishna = dark half)
+    final paksha = date.day <= 15 ? 'Shukla' : 'Krishna';
+    
+    // Calculate approximate Hindu year (Vikram Samvat)
+    final hinduYear = date.year + 57; // Approximate conversion
+    
+    return {
+      'tithi': tithis[tithiIndex],
+      'paksha': paksha,
+      'month': months[monthIndex],
+      'year': hinduYear.toString(),
+      'nakshatra': nakshatras[nakshatraIndex],
+      'yoga': 'Vajra', // Simplified - should be calculated
+      'karana': 'Bava', // Simplified - should be calculated
+      'fullDate': '${tithis[tithiIndex]}, ${months[monthIndex]} ${hinduYear}',
+    };
   }
 
   Widget _buildAstrologyServices(
