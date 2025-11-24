@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +15,7 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   late PageController _carouselController;
   int _currentCarouselIndex = 0;
+  Timer? _carouselTimer;
 
   final List<Map<String, dynamic>> featuredAstrologers = [
     {
@@ -40,18 +42,22 @@ class _HomePageState extends ConsumerState<HomePage> {
     {
       'icon': Icons.wb_sunny,
       'title': "Today's Horoscope",
+      'imageUrl': 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=300&fit=crop', // Sun/Stars
     },
     {
       'icon': Icons.grid_view,
       'title': 'Free Kundli',
+      'imageUrl': 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=300&fit=crop', // Constellation
     },
     {
       'icon': Icons.favorite,
       'title': 'Compatibility',
+      'imageUrl': 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=300&fit=crop', // Hearts/Love
     },
     {
       'icon': Icons.chat_bubble_outline,
       'title': 'Consultation',
+      'imageUrl': 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=300&fit=crop', // Consultation
     },
   ];
 
@@ -59,12 +65,28 @@ class _HomePageState extends ConsumerState<HomePage> {
   void initState() {
     super.initState();
     _carouselController = PageController();
+    _startCarouselTimer();
   }
 
   @override
   void dispose() {
+    _carouselTimer?.cancel();
     _carouselController.dispose();
     super.dispose();
+  }
+
+  void _startCarouselTimer() {
+    _carouselTimer?.cancel();
+    _carouselTimer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
+      if (_carouselController.hasClients) {
+        final nextIndex = (_currentCarouselIndex + 1) % 3;
+        _carouselController.animateToPage(
+          nextIndex,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   @override
@@ -213,6 +235,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               setState(() {
                 _currentCarouselIndex = index;
               });
+              // Restart timer when page changes manually
+              _startCarouselTimer();
             },
             itemCount: carouselItems.length,
             itemBuilder: (context, index) {
@@ -467,38 +491,14 @@ class _HomePageState extends ConsumerState<HomePage> {
     required bool isTablet,
     required int index,
   }) {
-    // Different gradient backgrounds for each service card
-    final gradients = [
-      [
-        const Color(0xFFE8F5E9),
-        const Color(0xFFC8E6C9),
-      ], // Today's Horoscope - Light green
-      [
-        const Color(0xFFE1F5FE),
-        const Color(0xFFB3E5FC),
-      ], // Free Kundli - Light blue
-      [
-        const Color(0xFFFCE4EC),
-        const Color(0xFFF8BBD0),
-      ], // Compatibility - Light pink
-      [
-        const Color(0xFFFFF9C4),
-        const Color(0xFFFFF59D),
-      ], // Consultation - Light yellow
-    ];
-
-    final gradient = gradients[index % gradients.length];
+    final service = astrologyServices[index];
+    final imageUrl = service['imageUrl'] as String?;
 
     return Container(
       width: isMobile ? null : isTablet ? 120 : 140,
       margin: isMobile ? EdgeInsets.zero : const EdgeInsets.only(right: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: gradient,
-        ),
         border: Border.all(
           color: ProfessionalColors.border.withOpacity(0.3),
           width: 1,
@@ -513,30 +513,69 @@ class _HomePageState extends ConsumerState<HomePage> {
       ),
       child: Stack(
         children: [
-          // Decorative pattern overlay
+          // Background Image
           Positioned.fill(
-            child: Opacity(
-              opacity: 0.1,
-              child: CustomPaint(
-                painter: _ServiceCardPatternPainter(),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: imageUrl != null
+                  ? Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        // Fallback gradient if image fails to load
+                        return Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                ProfessionalColors.primary.withOpacity(0.3),
+                                ProfessionalColors.primaryDark.withOpacity(0.3),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  : Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            ProfessionalColors.primary.withOpacity(0.3),
+                            ProfessionalColors.primaryDark.withOpacity(0.3),
+                          ],
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+          // Dark overlay for better text visibility
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.black.withOpacity(0.2),
               ),
             ),
           ),
-          // Content
+          // Content - Centered
           InkWell(
             onTap: () {
               // Navigate to service
             },
             borderRadius: BorderRadius.circular(12),
-            child: Padding(
+            child: Container(
               padding: const EdgeInsets.all(16),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withOpacity(0.9),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -551,8 +590,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: isMobile ? 12 : 13,
-                      color: ProfessionalColors.textPrimary,
+                      color: Colors.white,
                       fontWeight: FontWeight.w600,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withOpacity(0.5),
+                          blurRadius: 4,
+                        ),
+                      ],
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -892,34 +937,3 @@ class _ZodiacWheelPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// Custom painter for service card pattern background
-class _ServiceCardPatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = ProfessionalColors.primary
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-
-    // Draw circular patterns
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width * 0.3;
-
-    // Draw concentric circles
-    canvas.drawCircle(center, radius, paint);
-    canvas.drawCircle(center, radius * 0.6, paint);
-
-    // Draw some decorative lines
-    for (int i = 0; i < 8; i++) {
-      final angle = (i * 45 - 90) * math.pi / 180;
-      final x1 = center.dx + radius * 0.6 * math.cos(angle);
-      final y1 = center.dy + radius * 0.6 * math.sin(angle);
-      final x2 = center.dx + radius * math.cos(angle);
-      final y2 = center.dy + radius * math.sin(angle);
-      canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
