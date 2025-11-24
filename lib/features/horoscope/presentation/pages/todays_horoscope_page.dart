@@ -35,6 +35,16 @@ class _TodaysHoroscopePageState extends ConsumerState<TodaysHoroscopePage>
   bool _isLoading = false; // Changed to false - using dummy data
   bool _isBookmarked = false;
   String? _errorMessage;
+  
+  // Accordion states - all closed by default except Vedic Panchang
+  bool _detailedPredictionsExpanded = false;
+  bool _starRatingsExpanded = false;
+  bool _luckyElementsExpanded = false;
+  bool _dailyMantraExpanded = false;
+  bool _todayAtGlanceExpanded = false;
+  bool _planetaryInfluenceExpanded = false;
+  bool _vedicDataExpanded = true; // Only this one open by default
+  bool _energyMeterExpanded = false;
 
   final List<Map<String, dynamic>> _zodiacSigns = [
     {
@@ -333,7 +343,11 @@ Download Astrotalk App for more insights!
                         padding: const EdgeInsets.only(top: 24),
                         sliver: SliverList(
                           delegate: SliverChildListDelegate([
+                            // Daily Prediction at the top (no accordion)
                             _buildDailyPrediction(isMobile, isTablet),
+                            const SizedBox(height: 24),
+                            // Vedic Panchang
+                            _buildVedicData(isMobile, isTablet),
                             const SizedBox(height: 24),
                             _buildSectionedPredictions(isMobile, isTablet),
                             const SizedBox(height: 24),
@@ -347,21 +361,11 @@ Download Astrotalk App for more insights!
                             const SizedBox(height: 24),
                             _buildPlanetaryInfluence(isMobile, isTablet),
                             const SizedBox(height: 24),
-                            _buildVedicData(isMobile, isTablet),
-                            const SizedBox(height: 24),
                             if (_currentHoroscope?.tarotCardName != null)
-                              TarotCardWidget(
-                                cardName: _currentHoroscope!.tarotCardName!,
-                                meaning: _currentHoroscope!.tarotCardMeaning ?? '',
-                                imageUrl: _currentHoroscope!.tarotCardImageUrl,
-                              ),
+                              _buildTarotCard(isMobile, isTablet),
                             const SizedBox(height: 24),
                             if (_currentHoroscope?.morningEnergy != null)
-                              EnergyMeterWidget(
-                                morning: _currentHoroscope!.morningEnergy!,
-                                afternoon: _currentHoroscope!.afternoonEnergy ?? 5,
-                                evening: _currentHoroscope!.eveningEnergy ?? 5,
-                              ),
+                              _buildEnergyMeterAccordion(isMobile, isTablet),
                             const SizedBox(height: 24),
                             _buildNavigationButtons(isMobile, isTablet),
                             const SizedBox(height: 24),
@@ -448,27 +452,67 @@ Download Astrotalk App for more insights!
           onPressed: _shareHoroscope,
         ),
       ],
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: EdgeInsets.zero,
-        centerTitle: true,
-        title: Text(
-          "${_selectedZodiac}'s Today's Horoscope",
-          style: TextStyle(
-            fontSize: isMobile ? 16 : 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        background: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Background Image
-            if (backgroundImage != null)
-              Image.network(
-                backgroundImage,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
+      flexibleSpace: LayoutBuilder(
+        builder: (context, constraints) {
+          // Show title only when collapsed (when height is near minimum)
+          final isCollapsed = constraints.maxHeight <= (isMobile ? 100 : 120);
+          
+          return FlexibleSpaceBar(
+            titlePadding: EdgeInsets.zero,
+            centerTitle: true,
+            title: isCollapsed
+                ? Container(
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "${_selectedZodiac}'s Today's Horoscope",
+                          style: TextStyle(
+                            fontSize: isMobile ? 16 : 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          _formatDate(_selectedDate),
+                          style: TextStyle(
+                            fontSize: isMobile ? 12 : 14,
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  )
+                : const SizedBox.shrink(),
+            background: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Background Image
+                if (backgroundImage != null)
+                  Image.network(
+                    backgroundImage,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              ProfessionalColors.primary,
+                              ProfessionalColors.primaryDark,
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                else
+                  Container(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
@@ -479,67 +523,63 @@ Download Astrotalk App for more insights!
                         ],
                       ),
                     ),
-                  );
-                },
-              )
-            else
-              Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      ProfessionalColors.primary,
-                      ProfessionalColors.primaryDark,
-                    ],
+                  ),
+                // Dark overlay for better text visibility
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.3),
+                        Colors.black.withOpacity(0.6),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            // Dark overlay for better text visibility
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.3),
-                    Colors.black.withOpacity(0.6),
-                  ],
+                // Title overlay - Only shown when hero is expanded (hidden when collapsed)
+                LayoutBuilder(
+                  builder: (context, innerConstraints) {
+                    // Show title only when expanded (when height is near expandedHeight)
+                    final isExpanded = innerConstraints.maxHeight > (isMobile ? 200 : 240);
+                    if (!isExpanded) return const SizedBox.shrink();
+                    
+                    return Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: isMobile ? 60 : 70,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "${_selectedZodiac}'s Today's Horoscope",
+                            style: TextStyle(
+                              fontSize: isMobile ? 22 : 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '(${_formatDate(_selectedDate)})',
+                            style: TextStyle(
+                              fontSize: isMobile ? 14 : 16,
+                              color: Colors.white.withOpacity(0.9),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
-              ),
+              ],
             ),
-            // Zodiac Info Overlay - Centered
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: isMobile ? 60 : 70,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "${_selectedZodiac}'s Today's Horoscope",
-                    style: TextStyle(
-                      fontSize: isMobile ? 22 : 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '(${_formatDate(_selectedDate)})',
-                    style: TextStyle(
-                      fontSize: isMobile ? 14 : 16,
-                      color: Colors.white.withOpacity(0.9),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -555,6 +595,7 @@ Download Astrotalk App for more insights!
           // Zodiac Dropdown
           Expanded(
             child: Container(
+              height: isMobile ? 48 : 52, // Fixed height to match date selector
               padding: EdgeInsets.symmetric(
                 horizontal: isMobile ? 12 : 16,
                 vertical: 4,
@@ -586,7 +627,7 @@ Download Astrotalk App for more insights!
                       children: [
                         Text(
                           zodiac['icon'] as String,
-                          style: const TextStyle(fontSize: 20),
+                          style: TextStyle(fontSize: isMobile ? 16 : 18),
                         ),
                         const SizedBox(width: 8),
                         Text(zodiac['name'] as String),
@@ -618,6 +659,7 @@ Download Astrotalk App for more insights!
           // Date Dropdown
           Expanded(
             child: Container(
+              height: isMobile ? 48 : 52, // Fixed height to match zodiac selector
               padding: EdgeInsets.symmetric(
                 horizontal: isMobile ? 12 : 16,
                 vertical: 4,
@@ -701,17 +743,6 @@ Download Astrotalk App for more insights!
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              'Select Your Zodiac Sign',
-              style: TextStyle(
-                fontSize: isMobile ? 16 : 18,
-                fontWeight: FontWeight.bold,
-                color: ProfessionalColors.textPrimary,
-              ),
-            ),
-          ),
           SizedBox(
             height: isMobile ? 100 : 120,
             child: PageView.builder(
@@ -760,7 +791,7 @@ Download Astrotalk App for more insights!
                         Text(
                           zodiac['icon'] as String,
                           style: TextStyle(
-                            fontSize: isMobile ? 32 : 40,
+                            fontSize: isMobile ? 24 : 28, // Smaller zodiac logo
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -820,24 +851,8 @@ Download Astrotalk App for more insights!
   Widget _buildDailyPrediction(bool isMobile, bool isTablet) {
     if (_currentHoroscope == null) return const SizedBox.shrink();
     
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
-      padding: EdgeInsets.all(isMobile ? 16 : 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: ProfessionalColors.border,
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -904,43 +919,9 @@ Download Astrotalk App for more insights!
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Detailed Predictions',
-            style: TextStyle(
-              fontSize: isMobile ? 18 : 20,
-              fontWeight: FontWeight.bold,
-              color: ProfessionalColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 16),
-          ...sections.map((section) => _buildPredictionCard(
-            section['title'] as String,
-            section['icon'] as IconData,
-            section['text'] as String,
-            isMobile,
-            isTablet,
-          )),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPredictionCard(
-    String title,
-    IconData icon,
-    String text,
-    bool isMobile,
-    bool isTablet,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(isMobile ? 16 : 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: ProfessionalColors.border,
           width: 1,
@@ -953,6 +934,63 @@ Download Astrotalk App for more insights!
           ),
         ],
       ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: _detailedPredictionsExpanded,
+          onExpansionChanged: (expanded) {
+            setState(() {
+              _detailedPredictionsExpanded = expanded;
+            });
+          },
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ProfessionalColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.list,
+              color: ProfessionalColors.primary,
+              size: 24,
+            ),
+          ),
+          title: Text(
+            'Detailed Predictions',
+            style: TextStyle(
+              fontSize: isMobile ? 18 : 20,
+              fontWeight: FontWeight.bold,
+              color: ProfessionalColors.textPrimary,
+            ),
+          ),
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 20, vertical: 8),
+              child: Column(
+                children: sections.map((section) => _buildPredictionItem(
+                  section['title'] as String,
+                  section['icon'] as IconData,
+                  section['text'] as String,
+                  isMobile,
+                  isTablet,
+                )).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPredictionItem(
+    String title,
+    IconData icon,
+    String text,
+    bool isMobile,
+    bool isTablet,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1015,7 +1053,6 @@ Download Astrotalk App for more insights!
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
-      padding: EdgeInsets.all(isMobile ? 16 : 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -1031,10 +1068,28 @@ Download Astrotalk App for more insights!
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: _starRatingsExpanded,
+          onExpansionChanged: (expanded) {
+            setState(() {
+              _starRatingsExpanded = expanded;
+            });
+          },
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ProfessionalColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.star,
+              color: ProfessionalColors.primary,
+              size: 24,
+            ),
+          ),
+          title: Text(
             'Today\'s Ratings',
             style: TextStyle(
               fontSize: isMobile ? 18 : 20,
@@ -1042,27 +1097,33 @@ Download Astrotalk App for more insights!
               color: ProfessionalColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 16),
-          ...ratings.map((rating) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      rating['label'] as String,
-                      style: TextStyle(
-                        fontSize: isMobile ? 14 : 16,
-                        color: ProfessionalColors.textPrimary,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 20, vertical: 8),
+              child: Column(
+                children: ratings.map((rating) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        rating['label'] as String,
+                        style: TextStyle(
+                          fontSize: isMobile ? 14 : 16,
+                          color: ProfessionalColors.textPrimary,
+                        ),
                       ),
-                    ),
-                    StarRatingWidget(
-                      rating: rating['rating'] as int,
-                      size: isMobile ? 16 : 18,
-                    ),
-                  ],
-                ),
-              )),
-        ],
+                      StarRatingWidget(
+                        rating: rating['rating'] as int,
+                        size: isMobile ? 16 : 18,
+                      ),
+                    ],
+                  ),
+                )).toList(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1072,7 +1133,6 @@ Download Astrotalk App for more insights!
     
     return Container(
       margin: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
-      padding: EdgeInsets.all(isMobile ? 16 : 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -1088,50 +1148,55 @@ Download Astrotalk App for more insights!
           width: 1,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: ProfessionalColors.primary,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.stars,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Lucky Elements',
-                style: TextStyle(
-                  fontSize: isMobile ? 18 : 20,
-                  fontWeight: FontWeight.bold,
-                  color: ProfessionalColors.textPrimary,
-                ),
-              ),
-            ],
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: _luckyElementsExpanded,
+          onExpansionChanged: (expanded) {
+            setState(() {
+              _luckyElementsExpanded = expanded;
+            });
+          },
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ProfessionalColors.primary,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.stars,
+              color: Colors.white,
+              size: 24,
+            ),
           ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              _buildLuckyItem('Number', _currentHoroscope!.luckyNumber.toString(), Icons.numbers),
-              _buildLuckyItem('Color', _currentHoroscope!.luckyColor, Icons.palette),
-              if (_currentHoroscope!.luckyTime != null)
-                _buildLuckyItem('Time', _currentHoroscope!.luckyTime!, Icons.access_time),
-              if (_currentHoroscope!.luckyDirection != null)
-                _buildLuckyItem('Direction', _currentHoroscope!.luckyDirection!, Icons.explore),
-              if (_currentHoroscope!.luckyStone != null)
-                _buildLuckyItem('Stone', _currentHoroscope!.luckyStone!, Icons.diamond),
-            ],
+          title: Text(
+            'Lucky Elements',
+            style: TextStyle(
+              fontSize: isMobile ? 18 : 20,
+              fontWeight: FontWeight.bold,
+              color: ProfessionalColors.textPrimary,
+            ),
           ),
-        ],
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 20, vertical: 8),
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _buildLuckyItem('Number', _currentHoroscope!.luckyNumber.toString(), Icons.numbers),
+                  _buildLuckyItem('Color', _currentHoroscope!.luckyColor, Icons.palette),
+                  if (_currentHoroscope!.luckyTime != null)
+                    _buildLuckyItem('Time', _currentHoroscope!.luckyTime!, Icons.access_time),
+                  if (_currentHoroscope!.luckyDirection != null)
+                    _buildLuckyItem('Direction', _currentHoroscope!.luckyDirection!, Icons.explore),
+                  if (_currentHoroscope!.luckyStone != null)
+                    _buildLuckyItem('Stone', _currentHoroscope!.luckyStone!, Icons.diamond),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1186,7 +1251,6 @@ Download Astrotalk App for more insights!
     
     return Container(
       margin: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
-      padding: EdgeInsets.all(isMobile ? 16 : 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -1198,46 +1262,67 @@ Download Astrotalk App for more insights!
         ),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.self_improvement, color: Colors.white, size: 24),
-              const SizedBox(width: 12),
-              Text(
-                'Daily Mantra',
-                style: TextStyle(
-                  fontSize: isMobile ? 18 : 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ],
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: _dailyMantraExpanded,
+          onExpansionChanged: (expanded) {
+            setState(() {
+              _dailyMantraExpanded = expanded;
+            });
+          },
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.self_improvement,
+              color: Colors.white,
+              size: 24,
+            ),
           ),
-          const SizedBox(height: 16),
-          if (_currentHoroscope!.dailyMantra != null) ...[
-            Text(
-              _currentHoroscope!.dailyMantra!,
-              style: TextStyle(
-                fontSize: isMobile ? 16 : 18,
-                color: Colors.white,
-                fontStyle: FontStyle.italic,
-                height: 1.6,
+          title: Text(
+            'Daily Mantra',
+            style: TextStyle(
+              fontSize: isMobile ? 18 : 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 20, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (_currentHoroscope!.dailyMantra != null) ...[
+                    Text(
+                      _currentHoroscope!.dailyMantra!,
+                      style: TextStyle(
+                        fontSize: isMobile ? 16 : 18,
+                        color: Colors.white,
+                        fontStyle: FontStyle.italic,
+                        height: 1.6,
+                      ),
+                    ),
+                    if (_currentHoroscope!.affirmation != null) const SizedBox(height: 12),
+                  ],
+                  if (_currentHoroscope!.affirmation != null)
+                    Text(
+                      _currentHoroscope!.affirmation!,
+                      style: TextStyle(
+                        fontSize: isMobile ? 14 : 16,
+                        color: Colors.white.withOpacity(0.9),
+                        height: 1.5,
+                      ),
+                    ),
+                ],
               ),
             ),
-            if (_currentHoroscope!.affirmation != null) const SizedBox(height: 12),
           ],
-          if (_currentHoroscope!.affirmation != null)
-            Text(
-              _currentHoroscope!.affirmation!,
-              style: TextStyle(
-                fontSize: isMobile ? 14 : 16,
-                color: Colors.white.withOpacity(0.9),
-                height: 1.5,
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }
@@ -1252,7 +1337,6 @@ Download Astrotalk App for more insights!
     
     return Container(
       margin: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
-      padding: EdgeInsets.all(isMobile ? 16 : 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -1268,10 +1352,28 @@ Download Astrotalk App for more insights!
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: _todayAtGlanceExpanded,
+          onExpansionChanged: (expanded) {
+            setState(() {
+              _todayAtGlanceExpanded = expanded;
+            });
+          },
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ProfessionalColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.today,
+              color: ProfessionalColors.primary,
+              size: 24,
+            ),
+          ),
+          title: Text(
             'Today at a Glance',
             style: TextStyle(
               fontSize: isMobile ? 18 : 20,
@@ -1279,36 +1381,44 @@ Download Astrotalk App for more insights!
               color: ProfessionalColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 16),
-          if (_currentHoroscope!.bestActivity != null)
-            _buildGlanceItem(
-              'Best Activity',
-              _currentHoroscope!.bestActivity!,
-              Icons.check_circle,
-              ProfessionalColors.success,
-              isMobile,
-            ),
-          if (_currentHoroscope!.avoidToday != null) ...[
-            const SizedBox(height: 12),
-            _buildGlanceItem(
-              'Avoid Today',
-              _currentHoroscope!.avoidToday!,
-              Icons.cancel,
-              ProfessionalColors.error,
-              isMobile,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 20, vertical: 8),
+              child: Column(
+                children: [
+                  if (_currentHoroscope!.bestActivity != null)
+                    _buildGlanceItem(
+                      'Best Activity',
+                      _currentHoroscope!.bestActivity!,
+                      Icons.check_circle,
+                      ProfessionalColors.success,
+                      isMobile,
+                    ),
+                  if (_currentHoroscope!.avoidToday != null) ...[
+                    const SizedBox(height: 12),
+                    _buildGlanceItem(
+                      'Avoid Today',
+                      _currentHoroscope!.avoidToday!,
+                      Icons.cancel,
+                      ProfessionalColors.error,
+                      isMobile,
+                    ),
+                  ],
+                  if (_currentHoroscope!.planetaryHighlight != null) ...[
+                    const SizedBox(height: 12),
+                    _buildGlanceItem(
+                      'Planetary Highlight',
+                      _currentHoroscope!.planetaryHighlight!,
+                      Icons.star,
+                      ProfessionalColors.warning,
+                      isMobile,
+                    ),
+                  ],
+                ],
+              ),
             ),
           ],
-          if (_currentHoroscope!.planetaryHighlight != null) ...[
-            const SizedBox(height: 12),
-            _buildGlanceItem(
-              'Planetary Highlight',
-              _currentHoroscope!.planetaryHighlight!,
-              Icons.star,
-              ProfessionalColors.warning,
-              isMobile,
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
@@ -1361,7 +1471,6 @@ Download Astrotalk App for more insights!
     
     return Container(
       margin: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
-      padding: EdgeInsets.all(isMobile ? 16 : 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -1377,10 +1486,28 @@ Download Astrotalk App for more insights!
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: _planetaryInfluenceExpanded,
+          onExpansionChanged: (expanded) {
+            setState(() {
+              _planetaryInfluenceExpanded = expanded;
+            });
+          },
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ProfessionalColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.wb_sunny,
+              color: ProfessionalColors.primary,
+              size: 24,
+            ),
+          ),
+          title: Text(
             'Planetary Influence',
             style: TextStyle(
               fontSize: isMobile ? 18 : 20,
@@ -1388,41 +1515,47 @@ Download Astrotalk App for more insights!
               color: ProfessionalColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 16),
-          ..._currentHoroscope!.planetaryInfluence!.entries.map((entry) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: ProfessionalColors.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        entry.key,
-                        style: TextStyle(
-                          fontSize: isMobile ? 12 : 13,
-                          fontWeight: FontWeight.bold,
-                          color: ProfessionalColors.primary,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 20, vertical: 8),
+              child: Column(
+                children: _currentHoroscope!.planetaryInfluence!.entries.map((entry) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: ProfessionalColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          entry.key,
+                          style: TextStyle(
+                            fontSize: isMobile ? 12 : 13,
+                            fontWeight: FontWeight.bold,
+                            color: ProfessionalColors.primary,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        entry.value,
-                        style: TextStyle(
-                          fontSize: isMobile ? 14 : 15,
-                          color: ProfessionalColors.textPrimary,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          entry.value,
+                          style: TextStyle(
+                            fontSize: isMobile ? 14 : 15,
+                            color: ProfessionalColors.textPrimary,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              )),
-        ],
+                    ],
+                  ),
+                )).toList(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1451,7 +1584,6 @@ Download Astrotalk App for more insights!
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
-      padding: EdgeInsets.all(isMobile ? 16 : 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -1467,10 +1599,28 @@ Download Astrotalk App for more insights!
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: _vedicDataExpanded,
+          onExpansionChanged: (expanded) {
+            setState(() {
+              _vedicDataExpanded = expanded;
+            });
+          },
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ProfessionalColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.calendar_today,
+              color: ProfessionalColors.primary,
+              size: 24,
+            ),
+          ),
+          title: Text(
             'Vedic Panchang',
             style: TextStyle(
               fontSize: isMobile ? 18 : 20,
@@ -1478,11 +1628,13 @@ Download Astrotalk App for more insights!
               color: ProfessionalColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: vedicItems.map((item) => Container(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 20, vertical: 8),
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: vedicItems.map((item) => Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: ProfessionalColors.primary.withOpacity(0.1),
@@ -1509,8 +1661,89 @@ Download Astrotalk App for more insights!
                     ],
                   ),
                 )).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTarotCard(bool isMobile, bool isTablet) {
+    if (_currentHoroscope?.tarotCardName == null) return const SizedBox.shrink();
+    
+    return Container(
+      margin: EdgeInsets.only(
+        left: isMobile ? 16 : isTablet ? 24 : 32,
+        right: isMobile ? 16 : isTablet ? 24 : 32,
+        top: 0,
+        bottom: 32, // Increased bottom margin
+      ),
+      child: TarotCardWidget(
+        cardName: _currentHoroscope!.tarotCardName!,
+        meaning: _currentHoroscope!.tarotCardMeaning ?? '',
+        imageUrl: _currentHoroscope!.tarotCardImageUrl,
+      ),
+    );
+  }
+
+  Widget _buildEnergyMeterAccordion(bool isMobile, bool isTablet) {
+    if (_currentHoroscope?.morningEnergy == null) return const SizedBox.shrink();
+    
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 24 : 32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: ProfessionalColors.border,
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: _energyMeterExpanded,
+          onExpansionChanged: (expanded) {
+            setState(() {
+              _energyMeterExpanded = expanded;
+            });
+          },
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ProfessionalColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.battery_charging_full,
+              color: ProfessionalColors.primary,
+              size: 24,
+            ),
+          ),
+          title: Text(
+            'Energy Meter',
+            style: TextStyle(
+              fontSize: isMobile ? 18 : 20,
+              fontWeight: FontWeight.bold,
+              color: ProfessionalColors.textPrimary,
+            ),
+          ),
+          children: [
+            EnergyMeterWidget(
+              morning: _currentHoroscope!.morningEnergy!,
+              afternoon: _currentHoroscope!.afternoonEnergy ?? 5,
+              evening: _currentHoroscope!.eveningEnergy ?? 5,
+            ),
+          ],
+        ),
       ),
     );
   }
